@@ -9,8 +9,9 @@
 }
 
 :root {
-
     --red: #E8000A;
+    --red-dim: #6B0005;
+    --red-glow: rgba(232, 0, 10, 0.18);
     --primary: #2A9D8F;
     --primary-dim: #165F56;
     --accent: #E96A1A;
@@ -43,7 +44,13 @@ body,
     }
 }
 
-
+/* these overlays are disabled in the redesign */
+.scanlines,
+.vignette,
+#noise-canvas,
+.amb-glow {
+    display: none !important;
+}
 
 /* ── UPLOAD SCREEN ──────────────────────────── */
 
@@ -147,7 +154,13 @@ body,
     background: #252525;
 }
 
-
+/* not used in redesign */
+.zone-bg,
+.zone-scanline,
+.corner-tr,
+.corner-bl {
+    display: none;
+}
 
 .drop-icon {
     font-size: 36px;
