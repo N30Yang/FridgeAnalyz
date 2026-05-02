@@ -87,11 +87,37 @@
             color: var(--white);
             margin-bottom: 24px;
             text-align: center;
+            position: relative;
         }
 
         .title-main::before,
         .title-main::after {
-            display: none;
+            content: 'SHOW ME YOUR FRIDGE';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Subtle teal glitch */
+        .title-main::before {
+            color: var(--primary);
+            z-index: -1;
+            animation: glitchLight 8s infinite;
+        }
+
+        /* Subtle orange glitch */
+        .title-main::after {
+            color: var(--accent);
+            z-index: -2;
+            animation: glitchLight 8s infinite 0.1s;
+        }
+
+        @keyframes glitchLight {
+            0%, 95%, 100% { opacity: 0; transform: translate(0); clip-path: none; }
+            96% { opacity: 0.4; transform: translate(-2px, 1px); clip-path: inset(10% 0 30% 0); }
+            97% { opacity: 0.2; transform: translate(2px, -1px); clip-path: inset(40% 0 10% 0); }
+            98% { opacity: 0.3; transform: translate(-1px, 0); clip-path: inset(70% 0 5% 0); }
         }
 
 
