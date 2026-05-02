@@ -893,17 +893,66 @@
     }
 
     function ResultsScreen({ previewUrl, onReset }) {
+      const [status, setStatus] = useState('ANALYZING...');
+      const [result, setResult] = useState(null);
+      const [error, setError] = useState(null);
+
+      useEffect(() => {
+        if (!previewUrl) return;
+
+        const analyzeImage = async () => {
+          try {
+            const blob = await fetch(previewUrl).then(r => r.blob());
+            const reader = new FileReader();
+            reader.readAsDataURL(blob);
+            reader.onloadend = async () => {
+              const base64data = reader.result.split(',')[1];
+              
+              try {
+                const response = await fetch('/api/analyze', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ base64Image: base64data })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                  throw new Error(data.error || 'Failed to analyze');
+                }
+                
+                setResult(data.result);
+                setStatus('ANALYSIS COMPLETE');
+              } catch (err) {
+                setError(err.message);
+                setStatus('ANALYSIS FAILED');
+              }
+            };
+          } catch (err) {
+            setError('Failed to process image');
+            setStatus('ANALYSIS FAILED');
+          }
+        };
+
+        analyzeImage();
+      }, [previewUrl]);
+
       return React.createElement('div', { className: 'screen-results' },
         React.createElement('div', { className: 'scanlines' }),
         React.createElement('div', { className: 'vignette' }),
         React.createElement('div', { className: 'amb-glow' }),
         previewUrl && React.createElement('img', { src: previewUrl, className: 'wip-preview', alt: '' }),
         React.createElement('div', { className: 'wip-label' }, '// SYSTEM OUTPUT'),
-        React.createElement('div', { className: 'wip-title' },
-          React.createElement('span', null, 'WORK'), React.createElement('br'), React.createElement('span', null, 'IN PROGRESS')
-        ),
-        React.createElement('div', { className: 'wip-sub' }, 'RESULTS MODULE NOT YET DEPLOYED'),
-        React.createElement('button', { className: 'btn-back', onClick: onReset }, '← BACK TO UPLOAD')
+        
+        error ? React.createElement('div', { style: { color: 'var(--red)', fontFamily: 'Space Mono', textAlign: 'center', marginTop: '20px', zIndex: 11, position: 'relative' } }, `ERROR: ${error}`) : null,
+        
+        result 
+          ? React.createElement('div', { style: { maxWidth: '800px', width: '90%', background: 'var(--surface)', padding: '24px', border: '1px solid #3A0002', marginTop: '20px', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap', overflowY: 'auto', zIndex: 11, position: 'relative' } }, result)
+          : !error ? React.createElement('div', { className: 'wip-title', style: { zIndex: 11, position: 'relative', marginTop: '20px' } },
+              React.createElement('span', null, status)
+            ) : null,
+            
+        React.createElement('button', { className: 'btn-back', onClick: onReset, style: { zIndex: 11, position: 'relative' } }, '← BACK TO UPLOAD')
       );
     }
 
