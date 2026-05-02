@@ -20,12 +20,12 @@
         }
 
         :root {
-            --primary: #E96A1A; /* orange */
-            --primary-dim: #7B3F0A;
-            --primary-glow: rgba(233, 106, 26, 0.12);
-            --accent: #2A9D8F; /* teal */
-            --accent-dim: #165F56;
-            --accent-glow: rgba(42, 157, 143, 0.12);
+            --primary: #2A9D8F; /* teal */
+            --primary-dim: #165F56;
+            --primary-glow: rgba(42, 157, 143, 0.12);
+            --accent: #E96A1A; /* orange */
+            --accent-dim: #7B3F0A;
+            --accent-glow: rgba(233, 106, 26, 0.12);
             --white: #F0EDE8;
             --gray: #666;
             --dark: #080808;
@@ -104,7 +104,7 @@
             width: 900px;
             height: 300px;
             border-radius: 50%;
-            background: radial-gradient(ellipse, rgba(232, 0, 10, 0.18) 0%, transparent 70%);
+            background: radial-gradient(ellipse, rgba(42, 157, 143, 0.18) 0%, transparent 70%);
             z-index: 8997;
             animation: ambPulse 4s ease-in-out infinite
         }
@@ -151,7 +151,7 @@
             display: block;
             position: relative;
             animation: titleBreath 6s ease-in-out infinite;
-            text-shadow: 0 0 80px rgba(232, 0, 10, 0.08);
+            text-shadow: 0 0 80px rgba(42, 157, 143, 0.08);
         }
 
         @keyframes titleBreath {
@@ -405,7 +405,7 @@
             left: 0;
             right: 0;
             height: 2px;
-            background: linear-gradient(90deg, transparent, rgba(232, 0, 10, 0.45), transparent);
+            background: linear-gradient(90deg, transparent, rgba(42, 157, 143, 0.45), transparent);
             animation: zoneScan 3.5s ease-in-out infinite;
             pointer-events: none;
             z-index: 2
@@ -1026,7 +1026,7 @@
         }
 
         .res-step-num {
-            color: var(--red);
+            color: var(--primary);
             font-weight: bold;
             flex-shrink: 0;
         }
@@ -1358,7 +1358,7 @@
                     React.createElement('div', { className: 'vignette' }),
                     React.createElement('div', { className: 'amb-glow' }),
                     previewUrl && React.createElement('img', { src: previewUrl, className: 'wip-preview', alt: '' }),
-                    error ? React.createElement('div', { style: { color: 'var(--red)', fontFamily: 'Space Mono', textAlign: 'center', marginTop: '20px', zIndex: 11, position: 'relative' } }, `ERROR: ${error}`)
+                    error ? React.createElement('div', { style: { color: 'var(--primary)', fontFamily: 'Space Mono', textAlign: 'center', marginTop: '20px', zIndex: 11, position: 'relative' } }, `ERROR: ${error}`)
                         : React.createElement('div', { className: 'wip-title', style: { zIndex: 11, position: 'relative', marginTop: '20px' } }, status),
                     React.createElement('button', { className: 'btn-back', onClick: onReset, style: { zIndex: 11, position: 'relative', marginTop: '20px' } }, '← BACK TO UPLOAD')
                 );
