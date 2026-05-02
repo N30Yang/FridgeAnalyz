@@ -1,0 +1,860 @@
+/* --- BASE STYLES --- */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0
+}
+
+:root {
+    --red: #E8000A;
+    --red-dim: #6B0005;
+    --red-glow: rgba(232, 0, 10, 0.18);
+    --blue: #00AAFF;
+    --blue-dim: #005A8A;
+    --blue-glow: rgba(0, 170, 255, 0.15);
+    --white: #F0EDE8;
+    --gray: #666;
+    --dark: #080808;
+    --surface: #0E0E0E;
+}
+
+html,
+body,
+#root {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: var(--dark)
+}
+
+body {
+    font-family: 'Space Mono', monospace;
+    color: var(--white);
+    cursor: crosshair
+}
+
+/* --- EFFECTS --- */
+.scanlines {
+    pointer-events: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0, 0, 0, 0.12) 3px, rgba(0, 0, 0, 0.12) 4px)
+}
+
+.vignette {
+    pointer-events: none;
+    position: fixed;
+    inset: 0;
+    z-index: 8999;
+    background: radial-gradient(ellipse at center, transparent 40%, rgba(0, 0, 0, 0.88) 100%)
+}
+
+#noise-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 8998;
+    opacity: 0.055;
+    pointer-events: none
+}
+
+.amb-glow {
+    pointer-events: none;
+    position: fixed;
+    bottom: -120px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 900px;
+    height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(232, 0, 10, 0.18) 0%, transparent 70%);
+    z-index: 8997;
+    animation: ambPulse 4s ease-in-out infinite
+}
+
+@keyframes ambPulse {
+
+    0%,
+    100% {
+        opacity: 0.6;
+        transform: translateX(-50%) scaleX(1)
+    }
+
+    50% {
+        opacity: 1;
+        transform: translateX(-50%) scaleX(1.08)
+    }
+}
+
+/* --- UPLOAD SCREEN --- */
+.screen-upload {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    padding: 16px;
+    position: relative;
+    z-index: 10
+}
+
+.title-wrap {
+    position: relative;
+    text-align: center;
+    margin-bottom: 16px
+}
+
+.title-main {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(52px, 10vw, 136px);
+    letter-spacing: 0.05em;
+    line-height: 0.92;
+    color: var(--white);
+    display: block;
+    position: relative;
+    animation: titleBreath 6s ease-in-out infinite;
+    text-shadow: 0 0 80px rgba(232, 0, 10, 0.08);
+}
+
+@keyframes titleBreath {
+
+    0%,
+    100% {
+        letter-spacing: 0.05em
+    }
+
+    50% {
+        letter-spacing: 0.065em
+    }
+}
+
+.title-main::before,
+.title-main::after {
+    content: 'SHOW ME YOUR FRIDGE';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: inherit;
+    letter-spacing: inherit;
+    line-height: inherit;
+    pointer-events: none;
+}
+
+.title-main::before {
+    color: var(--red);
+    animation: glitchR 7s infinite;
+    clip-path: polygon(0 20%, 100% 20%, 100% 40%, 0 40%)
+}
+
+.title-main::after {
+    color: var(--blue);
+    animation: glitchB 7s infinite;
+    clip-path: polygon(0 55%, 100% 55%, 100% 70%, 0 70%)
+}
+
+@keyframes glitchR {
+
+    0%,
+    89%,
+    100% {
+        transform: translate(0);
+        opacity: 0
+    }
+
+    90% {
+        transform: translate(-3px, 1px);
+        opacity: 0.8
+    }
+
+    91% {
+        transform: translate(3px, -1px);
+        opacity: 0.6
+    }
+
+    92% {
+        transform: translate(-1px, 0);
+        opacity: 0.9
+    }
+
+    93% {
+        transform: translate(0);
+        opacity: 0
+    }
+
+    96% {
+        transform: translate(2px, 1px);
+        opacity: 0.7
+    }
+
+    97% {
+        transform: translate(0);
+        opacity: 0
+    }
+}
+
+@keyframes glitchB {
+
+    0%,
+    89%,
+    100% {
+        transform: translate(0);
+        opacity: 0
+    }
+
+    90% {
+        transform: translate(3px, 0);
+        opacity: 0.7
+    }
+
+    91% {
+        transform: translate(-2px, 1px);
+        opacity: 0.5
+    }
+
+    92.5% {
+        transform: translate(0);
+        opacity: 0
+    }
+
+    95% {
+        transform: translate(-3px, -1px);
+        opacity: 0.6
+    }
+
+    96% {
+        transform: translate(0);
+        opacity: 0
+    }
+}
+
+.ticker-wrap {
+    overflow: hidden;
+    width: min(620px, 92vw);
+    margin-bottom: 6px;
+    border-top: 1px solid #1C1C1C;
+    border-bottom: 1px solid #1C1C1C;
+    padding: 4px 0
+}
+
+.ticker {
+    display: inline-flex;
+    gap: 0;
+    white-space: nowrap;
+    animation: tickerMove 22s linear infinite
+}
+
+@keyframes tickerMove {
+    from {
+        transform: translateX(0)
+    }
+
+    to {
+        transform: translateX(-50%)
+    }
+}
+
+.ticker span {
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #2E2E2E;
+    padding: 0 28px
+}
+
+.ticker span.red {
+    color: var(--red-dim)
+}
+
+.drop-zone {
+    width: min(300px, 92vw);
+    height: min(600px, 68vh);
+    border: 1.5px solid #2A0000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    margin: 12px 0 8px;
+    transition: border-color 0.2s;
+    background: var(--surface);
+}
+
+.drop-zone::before,
+.drop-zone::after {
+    content: '';
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    border-color: var(--red-dim);
+    border-style: solid;
+    transition: border-color 0.2s, width 0.2s, height 0.2s;
+    z-index: 3;
+}
+
+.drop-zone::before {
+    top: -1px;
+    left: -1px;
+    border-width: 2px 0 0 2px
+}
+
+.drop-zone::after {
+    bottom: -1px;
+    right: -1px;
+    border-width: 0 2px 2px 0
+}
+
+.drop-zone .corner-tr,
+.drop-zone .corner-bl {
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    border-color: var(--red-dim);
+    border-style: solid;
+    transition: border-color 0.2s, width 0.2s, height 0.2s;
+    z-index: 3;
+}
+
+.drop-zone .corner-tr {
+    top: -1px;
+    right: -1px;
+    border-width: 2px 2px 0 0
+}
+
+.drop-zone .corner-bl {
+    bottom: -1px;
+    left: -1px;
+    border-width: 0 0 2px 2px
+}
+
+.drop-zone:hover,
+.drop-zone.drag-over {
+    border-color: var(--red)
+}
+
+.drop-zone:hover::before,
+.drop-zone.drag-over::before,
+.drop-zone:hover::after,
+.drop-zone.drag-over::after,
+.drop-zone:hover .corner-tr,
+.drop-zone.drag-over .corner-tr,
+.drop-zone:hover .corner-bl,
+.drop-zone.drag-over .corner-bl {
+    border-color: var(--red);
+    width: 34px;
+    height: 34px
+}
+
+.zone-bg {
+    position: absolute;
+    inset: 0;
+    background: var(--red-glow);
+    opacity: 0;
+    transition: opacity 0.2s
+}
+
+.drop-zone:hover .zone-bg,
+.drop-zone.drag-over .zone-bg {
+    opacity: 1
+}
+
+.zone-scanline {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(232, 0, 10, 0.45), transparent);
+    animation: zoneScan 3.5s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 2
+}
+
+@keyframes zoneScan {
+    0% {
+        top: 0;
+        opacity: 0
+    }
+
+    10% {
+        opacity: 1
+    }
+
+    90% {
+        opacity: 1
+    }
+
+    100% {
+        top: 100%;
+        opacity: 0
+    }
+}
+
+.drop-icon {
+    font-size: 44px;
+    line-height: 1;
+    opacity: 0.4;
+    transition: transform 0.2s, opacity 0.2s;
+    position: relative;
+    z-index: 1
+}
+
+.drop-zone:hover .drop-icon {
+    transform: scale(1.12);
+    opacity: 0.75
+}
+
+.drop-text {
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    color: var(--gray);
+    text-transform: uppercase;
+    text-align: center;
+    line-height: 1.8;
+    position: relative;
+    z-index: 1
+}
+
+.drop-text em {
+    color: var(--blue);
+    font-style: normal
+}
+
+.preview-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    inset: 0;
+    opacity: 0.55;
+    filter: saturate(0.5) contrast(1.1)
+}
+
+.preview-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(8, 8, 8, 0.5) 0%, transparent 40%, transparent 60%, rgba(8, 8, 8, 0.5) 100%);
+    z-index: 1;
+    pointer-events: none
+}
+
+.webcam-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    inset: 0
+}
+
+.capture-btn {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--red);
+    border: none;
+    color: #fff;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 0.1em;
+    padding: 8px 28px;
+    cursor: pointer;
+    z-index: 10;
+    clip-path: polygon(3px 0%, 100% 0%, calc(100% - 3px) 100%, 0% 100%)
+}
+
+.status-line {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: min(580px, 92vw);
+    margin: 2px 0 6px
+}
+
+.status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--red);
+    animation: dotBlink 1.4s step-end infinite;
+    flex-shrink: 0
+}
+
+@keyframes dotBlink {
+
+    0%,
+    100% {
+        opacity: 1
+    }
+
+    50% {
+        opacity: 0
+    }
+}
+
+.status-text {
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #333;
+    flex: 1
+}
+
+.status-coords {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    color: #222;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap
+}
+
+.webcam-strip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px
+}
+
+.btn-webcam {
+    background: transparent;
+    border: 1px solid var(--blue-dim);
+    color: var(--blue);
+    padding: 5px 14px;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s
+}
+
+.btn-webcam:hover,
+.btn-webcam.active {
+    background: var(--blue-glow);
+    border-color: var(--blue)
+}
+
+.strip-div {
+    color: #252525;
+    font-size: 10px
+}
+
+.subtitle-pantry {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(16px, 2.8vw, 34px);
+    letter-spacing: 0.22em;
+    color: #2A2A2A;
+    margin-bottom: 10px;
+    user-select: none;
+    animation: subtitlePulse 5s ease-in-out infinite
+}
+
+@keyframes subtitlePulse {
+
+    0%,
+    100% {
+        color: #2A2A2A
+    }
+
+    50% {
+        color: #3A3A3A
+    }
+}
+
+.btn-scan-wrap {
+    position: relative;
+    display: inline-block
+}
+
+.btn-ring {
+    position: absolute;
+    inset: -4px;
+    clip-path: polygon(5px 0%, 100% 0%, calc(100% - 5px) 100%, 0% 100%);
+    border: 1px solid #3A0002;
+    pointer-events: none;
+    animation: ringPulse 2s ease-in-out infinite
+}
+
+@keyframes ringPulse {
+
+    0%,
+    100% {
+        opacity: 0.3;
+        inset: -4px
+    }
+
+    50% {
+        opacity: 0.8;
+        inset: -8px
+    }
+}
+
+.btn-scan {
+    background: var(--red);
+    border: none;
+    color: #fff;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(24px, 3.8vw, 42px);
+    letter-spacing: 0.14em;
+    padding: 16px 56px 14px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    clip-path: polygon(5px 0%, 100% 0%, calc(100% - 5px) 100%, 0% 100%);
+    transition: transform 0.12s;
+}
+
+.btn-scan::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.18) 50%, transparent 60%);
+    transform: translateX(-100%);
+    transition: transform 0s
+}
+
+.btn-scan:hover::before {
+    transform: translateX(220%);
+    transition: transform 0.5s
+}
+
+.btn-glow {
+    position: absolute;
+    inset: -8px;
+    background: var(--red);
+    filter: blur(18px);
+    opacity: 0;
+    z-index: -1;
+    transition: opacity 0.2s;
+    pointer-events: none;
+    clip-path: polygon(5px 0%, 100% 0%, calc(100% - 5px) 100%, 0% 100%)
+}
+
+.btn-scan-wrap:hover .btn-glow {
+    opacity: 0.3
+}
+
+.btn-scan:hover {
+    transform: scale(1.04)
+}
+
+.btn-scan:active {
+    transform: scale(0.97)
+}
+
+.btn-scan:disabled {
+    background: #3A0002;
+    color: #5A0004;
+    cursor: not-allowed
+}
+
+.btn-scan:disabled~.btn-glow,
+.btn-scan:disabled+.btn-glow {
+    display: none
+}
+
+/* --- AI RESULTS SCREEN --- */
+.screen-results {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 10;
+    padding: 20px;
+}
+
+.results-container {
+    width: min(800px, 95vw);
+    height: 85vh;
+    background: rgba(12, 12, 12, 0.9);
+    border: 1px solid var(--red-dim);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+}
+
+.results-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--red-dim);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(232, 0, 10, 0.05);
+}
+
+.results-header h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    color: var(--red);
+    letter-spacing: 0.1em;
+}
+
+.results-scroll-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+/* Custom Cyberpunk Scrollbar */
+.results-scroll-area::-webkit-scrollbar {
+    width: 6px;
+}
+
+.results-scroll-area::-webkit-scrollbar-track {
+    background: #0a0a0a;
+    border-left: 1px solid #1a1a1a;
+}
+
+.results-scroll-area::-webkit-scrollbar-thumb {
+    background: var(--red-dim);
+}
+
+.results-scroll-area::-webkit-scrollbar-thumb:hover {
+    background: var(--red);
+}
+
+.section-title {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--gray);
+    margin: 20px 0 10px;
+    text-transform: uppercase;
+    border-bottom: 1px dashed #333;
+    padding-bottom: 5px;
+}
+
+.section-title:first-child {
+    margin-top: 0;
+}
+
+.tag-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.tag {
+    background: #111;
+    border: 1px solid #333;
+    color: #aaa;
+    padding: 6px 12px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.recipe-card {
+    background: #0f0f0f;
+    border-left: 3px solid var(--blue-dim);
+    padding: 15px;
+    margin-bottom: 12px;
+}
+
+.recipe-card.joke {
+    border-left-color: var(--red-dim);
+    background: rgba(232, 0, 10, 0.03);
+}
+
+.recipe-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    color: var(--blue);
+    letter-spacing: 0.05em;
+    margin-bottom: 5px;
+}
+
+.recipe-card.joke .recipe-title {
+    color: var(--red);
+}
+
+.recipe-desc {
+    font-size: 13px;
+    line-height: 1.5;
+    color: #ccc;
+}
+
+.btn-back {
+    background: transparent;
+    border: 1px solid #2A0000;
+    color: var(--red-dim);
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-back:hover {
+    border-color: var(--red);
+    color: var(--red);
+    background: var(--red-glow);
+}
+
+/* Analyzing Animation */
+.analyzing-box {
+    text-align: center;
+    margin-top: 50px;
+}
+
+.analyzing-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px;
+    color: var(--red);
+    letter-spacing: 0.1em;
+    animation: pulseOp 1.5s infinite;
+}
+
+@keyframes pulseOp {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.3;
+    }
+}
+
+.progress-bar {
+    width: 300px;
+    height: 2px;
+    background: #111;
+    margin: 20px auto 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: var(--red);
+    width: 50%;
+    animation: slideBar 2s ease-in-out infinite alternate;
+}
+
+@keyframes slideBar {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(200%);
+    }
+}
