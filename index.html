@@ -20,12 +20,12 @@
         }
 
         :root {
-            --red: #E8000A;
-            --red-dim: #6B0005;
-            --red-glow: rgba(232, 0, 10, 0.18);
-            --blue: #00AAFF;
-            --blue-dim: #005A8A;
-            --blue-glow: rgba(0, 170, 255, 0.15);
+            --primary: #E96A1A; /* orange */
+            --primary-dim: #7B3F0A;
+            --primary-glow: rgba(233, 106, 26, 0.12);
+            --accent: #2A9D8F; /* teal */
+            --accent-dim: #165F56;
+            --accent-glow: rgba(42, 157, 143, 0.12);
             --white: #F0EDE8;
             --gray: #666;
             --dark: #080808;
@@ -46,7 +46,9 @@
             html,
             body,
             #root {
-                overflow: hidden;
+                overflow: auto;
+                /*overflow: hidden;*/
+                /* this was stopping it from scrolling for some reason - Walter*/
             }
         }
 
@@ -179,13 +181,13 @@
         }
 
         .title-main::before {
-            color: var(--red);
+            color: var(--primary);
             animation: glitchR 7s infinite;
             clip-path: polygon(0 20%, 100% 20%, 100% 40%, 0 40%)
         }
 
         .title-main::after {
-            color: var(--blue);
+            color: var(--accent);
             animation: glitchB 7s infinite;
             clip-path: polygon(0 55%, 100% 55%, 100% 70%, 0 70%)
         }
@@ -300,7 +302,7 @@
         }
 
         .ticker span.red {
-            color: var(--red-dim)
+            color: var(--primary-dim)
         }
 
         .drop-zone {
@@ -326,7 +328,7 @@
             position: absolute;
             width: 22px;
             height: 22px;
-            border-color: var(--red-dim);
+            border-color: var(--primary-dim);
             border-style: solid;
             transition: border-color 0.2s, width 0.2s, height 0.2s;
             z-index: 3;
@@ -349,7 +351,7 @@
             position: absolute;
             width: 22px;
             height: 22px;
-            border-color: var(--red-dim);
+            border-color: var(--primary-dim);
             border-style: solid;
             transition: border-color 0.2s, width 0.2s, height 0.2s;
             z-index: 3;
@@ -369,7 +371,7 @@
 
         .drop-zone:hover,
         .drop-zone.drag-over {
-            border-color: var(--red)
+            border-color: var(--primary)
         }
 
         .drop-zone:hover::before,
@@ -380,7 +382,7 @@
         .drop-zone.drag-over .corner-tr,
         .drop-zone:hover .corner-bl,
         .drop-zone.drag-over .corner-bl {
-            border-color: var(--red);
+            border-color: var(--primary);
             width: 34px;
             height: 34px
         }
@@ -388,7 +390,7 @@
         .zone-bg {
             position: absolute;
             inset: 0;
-            background: var(--red-glow);
+            background: var(--primary-glow);
             opacity: 0;
             transition: opacity 0.2s
         }
@@ -455,7 +457,7 @@
         }
 
         .drop-text em {
-            color: var(--blue);
+            color: var(--accent);
             font-style: normal
         }
 
@@ -490,7 +492,7 @@
             bottom: 12px;
             left: 50%;
             transform: translateX(-50%);
-            background: var(--red);
+            background: var(--primary);
             border: none;
             color: #fff;
             font-family: 'Bebas Neue', sans-serif;
@@ -514,7 +516,7 @@
             width: 6px;
             height: 6px;
             border-radius: 50%;
-            background: var(--red);
+            background: var(--primary);
             animation: dotBlink 1.4s step-end infinite;
             flex-shrink: 0
         }
@@ -556,8 +558,8 @@
 
         .btn-webcam {
             background: transparent;
-            border: 1px solid var(--blue-dim);
-            color: var(--blue);
+            border: 1px solid var(--accent-dim);
+            color: var(--accent);
             padding: 5px 14px;
             font-family: 'Space Mono', monospace;
             font-size: 9px;
@@ -568,13 +570,13 @@
         }
 
         .btn-webcam:hover {
-            background: var(--blue-glow);
-            border-color: var(--blue)
+            background: var(--accent-glow);
+            border-color: var(--accent)
         }
 
         .btn-webcam.active {
-            background: var(--blue-glow);
-            border-color: var(--blue)
+            background: var(--accent-glow);
+            border-color: var(--accent)
         }
 
         .strip-div {
@@ -633,7 +635,7 @@
         }
 
         .btn-scan {
-            background: var(--red);
+            background: var(--primary);
             border: none;
             color: #fff;
             font-family: 'Bebas Neue', sans-serif;
@@ -664,7 +666,7 @@
         .btn-glow {
             position: absolute;
             inset: -8px;
-            background: var(--red);
+            background: var(--primary);
             filter: blur(18px);
             opacity: 0;
             z-index: -1;
@@ -735,7 +737,7 @@
         .btn-back {
             background: transparent;
             border: 1px solid #2A0000;
-            color: var(--red-dim);
+            color: var(--primary-dim);
             font-family: 'Space Mono', monospace;
             font-size: 9px;
             letter-spacing: 0.14em;
@@ -747,9 +749,9 @@
         }
 
         .btn-back:hover {
-            border-color: var(--red);
-            color: var(--red);
-            background: var(--red-glow)
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--primary-glow)
         }
 
         .wip-preview {
@@ -826,9 +828,9 @@
         }
 
         .res-btn-reset:hover {
-            border-color: var(--red);
-            color: var(--red);
-            background: var(--red-glow);
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--primary-glow);
         }
 
         .res-body {
@@ -919,13 +921,13 @@
 
         .res-item-pct {
             font-size: 13px;
-            color: var(--blue);
+            color: var(--accent);
             font-weight: bold;
         }
 
         .res-item-warn {
             font-size: 9px;
-            color: var(--red);
+            color: var(--primary);
             font-style: italic;
             margin-top: 6px;
             letter-spacing: 0.05em;
@@ -987,7 +989,7 @@
         }
 
         .res-recipe-rating.red {
-            color: var(--red);
+            color: var(--primary);
         }
 
         .res-recipe-rating.orange {
