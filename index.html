@@ -7,770 +7,10 @@
     <title>SHOW ME YOUR FRIDGE</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-    <style>
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-
-        :root {
-            --primary: #2A9D8F; /* teal */
-            --primary-dim: #165F56;
-            --accent: #E96A1A; /* orange */
-            --white: #ffffff;
-            --gray: #cccccc;
-            --dark: #121212;
-            --surface: #1e1e1e;
-            --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-
-        html,
-        body,
-        #root {
-            width: 100%;
-            height: 100%;
-            background: var(--dark);
-            color: var(--white);
-            font-family: var(--font-main);
-        }
-
-        /* mobile: allow scrolling */
-        @media (max-width: 768px) {
-            html, body, #root {
-                overflow-x: hidden;
-                overflow-y: auto;
-                height: auto;
-                min-height: 100%;
-            }
-        }
-
-        .scanlines, .vignette, #noise-canvas, .amb-glow {
-            display: none !important;
-        }
-
-        @keyframes ambPulse {
-
-            0%,
-            100% {
-                opacity: 0.6;
-                transform: translateX(-50%) scaleX(1)
-            }
-
-            50% {
-                opacity: 1;
-                transform: translateX(-50%) scaleX(1.08)
-            }
-        }
-
-        .screen-upload {
-            width: 100%;
-            min-height: 100svh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 0;
-            padding: 16px;
-            position: relative;
-            z-index: 10
-        }
-
-        .title-main {
-            font-size: clamp(32px, 8vw, 84px);
-            font-weight: 800;
-            line-height: 1.1;
-            color: var(--white);
-            margin-bottom: 24px;
-            text-align: center;
-            position: relative;
-        }
-
-        .title-main::before,
-        .title-main::after {
-            content: 'SHOW ME YOUR FRIDGE';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        /* Subtle teal glitch */
-        .title-main::before {
-            color: var(--primary);
-            z-index: -1;
-            animation: glitchLight 8s infinite;
-        }
-
-        /* Subtle orange glitch */
-        .title-main::after {
-            color: var(--accent);
-            z-index: -2;
-            animation: glitchLight 8s infinite 0.1s;
-        }
-
-        @keyframes glitchLight {
-            0%, 95%, 100% { opacity: 0; transform: translate(0); clip-path: none; }
-            96% { opacity: 0.4; transform: translate(-2px, 1px); clip-path: inset(10% 0 30% 0); }
-            97% { opacity: 0.2; transform: translate(2px, -1px); clip-path: inset(40% 0 10% 0); }
-            98% { opacity: 0.3; transform: translate(-1px, 0); clip-path: inset(70% 0 5% 0); }
-        }
-
-
-
-        .drop-zone {
-            width: min(400px, 92vw);
-            height: 300px;
-            border: 2px dashed var(--gray);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            cursor: pointer;
-            position: relative; /* Add this back */
-            overflow: hidden; /* Ensure image doesn't leak out of rounded corners */
-            margin: 24px 0;
-            background: var(--surface);
-            border-radius: 8px;
-        }
-
-        .drop-zone:hover {
-            border-color: var(--primary);
-            background: #252525;
-        }
-
-        .zone-bg, .zone-scanline, .corner-tr, .corner-bl {
-            display: none;
-        }
-
-        .drop-icon {
-            font-size: 44px;
-            line-height: 1;
-            opacity: 0.4;
-            transition: transform 0.2s, opacity 0.2s;
-            position: relative;
-            z-index: 1
-        }
-
-        .drop-zone:hover .drop-icon {
-            transform: scale(1.12);
-            opacity: 0.75
-        }
-
-        .drop-text {
-            font-size: 10px;
-            letter-spacing: 0.16em;
-            color: var(--gray);
-            text-transform: uppercase;
-            text-align: center;
-            line-height: 1.8;
-            position: relative;
-            z-index: 1
-        }
-
-        .drop-text em {
-            color: var(--accent);
-            font-style: normal
-        }
-
-        .preview-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            position: absolute;
-            inset: 0;
-            opacity: 1;
-            z-index: 1;
-        }
-
-        .preview-overlay {
-            display: none;
-        }
-
-        .webcam-video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            position: absolute;
-            inset: 0
-        }
-
-        .capture-btn {
-            position: absolute;
-            bottom: 12px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--primary);
-            border: none;
-            color: #fff;
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 20px;
-            letter-spacing: 0.1em;
-            padding: 8px 28px;
-            cursor: pointer;
-            z-index: 10;
-            clip-path: polygon(3px 0%, 100% 0%, calc(100% - 3px) 100%, 0% 100%)
-        }
-
-        .status-line {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            width: min(580px, 92vw);
-            margin: 2px 0 6px
-        }
-
-        .status-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: var(--primary);
-            animation: dotBlink 1.4s step-end infinite;
-            flex-shrink: 0
-        }
-
-        @keyframes dotBlink {
-
-            0%,
-            100% {
-                opacity: 1
-            }
-
-            50% {
-                opacity: 0
-            }
-        }
-
-        .status-text {
-            font-size: 9px;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            color: #333;
-            flex: 1
-        }
-
-        .status-coords {
-            font-size: 9px;
-            letter-spacing: 0.1em;
-            color: #222;
-            font-variant-numeric: tabular-nums;
-            white-space: nowrap
-        }
-
-        .webcam-strip {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 8px
-        }
-
-        .btn-webcam {
-            background: transparent;
-            border: 1px solid var(--accent-dim);
-            color: var(--accent);
-            padding: 5px 14px;
-            font-family: 'Space Mono', monospace;
-            font-size: 9px;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: background 0.15s, border-color 0.15s
-        }
-
-        .btn-webcam:hover {
-            background: var(--accent-glow);
-            border-color: var(--accent)
-        }
-
-        .btn-webcam.active {
-            background: var(--accent-glow);
-            border-color: var(--accent)
-        }
-
-        .strip-div {
-            color: #252525;
-            font-size: 10px
-        }
-
-        .subtitle-pantry {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--white);
-            margin: 20px 0;
-        }
-
-        .btn-scan {
-            background: var(--primary);
-            border: none;
-            color: #fff;
-            font-size: 18px;
-            font-weight: 600;
-            padding: 16px 48px;
-            cursor: pointer;
-            border-radius: 8px;
-            transition: background 0.2s;
-        }
-
-        .btn-scan:hover {
-            background: var(--primary-dim);
-        }
-
-        .btn-ring, .btn-glow {
-            display: none;
-        }
-
-        .btn-scan:disabled {
-            background: #165F56;
-            color: #ffffff;
-            cursor: not-allowed
-        }
-
-        .btn-scan:disabled~.btn-glow,
-        .btn-scan:disabled+.btn-glow {
-            display: none
-        }
-
-        /* RESULTS PLACEHOLDER */
-        .screen-results {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-            position: relative;
-            z-index: 10
-        }
-
-        .wip-label {
-            font-size: 9px;
-            letter-spacing: 0.22em;
-            text-transform: uppercase;
-            color: #282828
-        }
-
-        .wip-title {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: clamp(40px, 7vw, 90px);
-            letter-spacing: 0.08em;
-            color: #1A1A1A;
-            text-align: center;
-            line-height: 1
-        }
-
-        .wip-sub {
-            font-size: 10px;
-            letter-spacing: 0.16em;
-            color: #222;
-            text-transform: uppercase
-        }
-
-        .btn-back {
-            background: transparent;
-            border: 1px solid #165F56;
-            color: var(--primary-dim);
-            font-family: 'Space Mono', monospace;
-            font-size: 9px;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
-            padding: 8px 20px;
-            cursor: pointer;
-            margin-top: 16px;
-            transition: border-color 0.15s, color 0.15s, background 0.15s
-        }
-
-        .btn-back:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-            background: var(--primary-glow)
-        }
-
-        .wip-preview {
-            width: min(360px, 70vw);
-            aspect-ratio: 4/3;
-            object-fit: cover;
-            opacity: 0.1;
-            filter: saturate(0) contrast(1.3);
-            border: 1px solid #181818
-        }
-
-        /* NEW RESULTS UI */
-        .res-container {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            padding: 32px 48px;
-            z-index: 10;
-            position: relative;
-            gap: 24px;
-            box-sizing: border-box;
-        }
-
-        .res-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            border-bottom: 1px solid #222;
-            padding-bottom: 16px;
-            flex-shrink: 0;
-        }
-
-        .res-title {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--white);
-            line-height: 1.2;
-        }
-
-        .res-header-right {
-            display: flex;
-            gap: 24px;
-            align-items: center;
-        }
-
-        .res-mood-box {
-            border: 1px solid #332200;
-            padding: 6px 16px;
-            color: #CC9900;
-            font-size: 11px;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            background: rgba(51, 34, 0, 0.2);
-        }
-
-        .res-mood-label {
-            color: #886600;
-            margin-right: 8px;
-        }
-
-        .res-btn-reset {
-            background: transparent;
-            border: 1px solid #333;
-            color: #888;
-            font-family: 'Space Mono', monospace;
-            font-size: 11px;
-            padding: 6px 16px;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-        }
-
-        .res-btn-reset:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-            background: var(--primary-glow);
-        }
-
-        .res-body {
-            display: flex;
-            gap: 48px;
-            flex: 1;
-            overflow: hidden;
-            min-height: 0;
-        }
-
-        .res-col-left {
-            width: 340px;
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-            flex-shrink: 0;
-            overflow-y: auto;
-            padding-right: 16px;
-        }
-
-        .res-col-right {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-            overflow-y: auto;
-            padding-right: 16px;
-        }
-
-        .res-img-wrap {
-            width: 100%;
-            height: 260px;
-            border: 1px solid #222;
-            position: relative;
-            overflow: hidden;
-            background: #000;
-            flex-shrink: 0;
-        }
-
-        .res-img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            opacity: 0.7;
-            filter: contrast(1.2) grayscale(20%);
-        }
-
-        .res-section-title {
-            font-size: 10px;
-            color: #555;
-            letter-spacing: 0.2em;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-shrink: 0;
-        }
-
-        .res-section-title::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: #222;
-        }
-
-        .res-item-list {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .res-item {
-            border-bottom: 1px solid #151515;
-            padding: 14px 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-        }
-
-        .res-item-name {
-            font-size: 13px;
-            color: var(--white);
-            max-width: 65%;
-            line-height: 1.4;
-        }
-
-        .res-item-right {
-            text-align: right;
-        }
-
-        .res-item-pct {
-            font-size: 13px;
-            color: var(--accent);
-            font-weight: bold;
-        }
-
-        .res-item-warn {
-            font-size: 9px;
-            color: var(--primary);
-            font-style: italic;
-            margin-top: 6px;
-            letter-spacing: 0.05em;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
-        .res-recipe-list {
-            display: flex;
-            flex-direction: column;
-            gap: 32px;
-        }
-
-        .res-recipe {
-            border-bottom: 1px solid #151515;
-            padding-bottom: 32px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .res-recipe-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 16px;
-        }
-
-        .res-recipe-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--white);
-            line-height: 1.2;
-        }
-
-        .res-recipe-rating-box {
-            text-align: right;
-            flex-shrink: 0;
-        }
-
-        .res-recipe-rating-label {
-            font-size: 9px;
-            color: #555;
-            letter-spacing: 0.1em;
-            margin-bottom: 6px;
-            text-transform: uppercase;
-        }
-
-        .res-recipe-rating {
-            font-size: 13px;
-            font-weight: bold;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-        }
-
-        .res-recipe-rating.green {
-            color: #00CC66;
-        }
-
-        .res-recipe-rating.teal {
-            color: var(--primary);
-        }
-
-        .res-recipe-rating.orange {
-            color: #FF8800;
-        }
-
-        .res-recipe-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .res-tag {
-            border: 1px solid #222;
-            color: #666;
-            font-size: 10px;
-            padding: 5px 10px;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-        }
-
-        .res-recipe-steps {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-
-        .res-step {
-            display: flex;
-            gap: 16px;
-            font-size: 14px;
-            color: #999;
-            line-height: 1.5;
-        }
-
-        .res-step-num {
-            color: var(--primary);
-            font-weight: bold;
-            flex-shrink: 0;
-        }
-
-        .res-recipe-footer {
-            display: flex;
-            justify-content: space-between;
-            font-size: 10px;
-            color: #333;
-            letter-spacing: 0.1em;
-            margin-top: 12px;
-            text-transform: uppercase;
-        }
-
-        /* Scrollbar styles */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #222;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #444;
-        }
-
-        @media (max-width: 768px) {
-            .screen-upload {
-                height: auto;
-                min-height: 100svh;
-                justify-content: flex-start;
-                padding-top: 40px;
-                padding-bottom: 80px;
-            }
-
-            .res-container {
-                padding: 16px 20px 80px 20px;
-                gap: 16px;
-                height: auto;
-                min-height: 100svh;
-            }
-
-            .res-body {
-                flex-direction: column;
-                overflow: visible;
-                gap: 32px;
-            }
-
-            .res-col-left {
-                width: 100%;
-                overflow: visible;
-                padding-right: 0;
-            }
-
-            .res-col-right {
-                width: 100%;
-                overflow: visible;
-                padding-right: 0;
-            }
-
-            .res-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 12px;
-            }
-
-            .res-header-right {
-                width: 100%;
-                justify-content: space-between;
-            }
-
-            .res-title {
-                font-size: 28px;
-            }
-
-            .title-main {
-                font-size: 14vw;
-            }
-
-            .subtitle-pantry {
-                font-size: 24px;
-            }
-
-            .btn-scan {
-                font-size: 20px;
-                padding: 12px 32px;
-            }
-
-            .drop-zone {
-                height: 50vh;
-            }
-
-            .webcam-strip {
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-
-            .status-line {
-                flex-direction: column;
-                text-align: center;
-                gap: 6px;
-            }
-        }
-    </style>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -778,88 +18,130 @@
     <div id="root"></div>
 
     <script>
+        // noise canvas -- draws random pixels every frame for film grain effect
         (function () {
             const c = document.getElementById('noise-canvas');
             const ctx = c.getContext('2d');
-            function resize() { c.width = window.innerWidth; c.height = window.innerHeight }
-            resize(); window.addEventListener('resize', resize);
+            function resize() { c.width = window.innerWidth; c.height = window.innerHeight; }
+            resize();
+            window.addEventListener('resize', resize);
             function frame() {
                 const id = ctx.createImageData(c.width, c.height);
                 const d = id.data;
-                for (let i = 0; i < d.length; i += 4) { const v = Math.random() * 255 | 0; d[i] = d[i + 1] = d[i + 2] = v; d[i + 3] = 255 }
-                ctx.putImageData(id, 0, 0); requestAnimationFrame(frame);
+                for (let i = 0; i < d.length; i += 4) {
+                    const v = Math.random() * 255 | 0;
+                    d[i] = d[i + 1] = d[i + 2] = v;
+                    d[i + 3] = 255;
+                }
+                ctx.putImageData(id, 0, 0);
+                requestAnimationFrame(frame);
             }
             frame();
         })();
 
         const { useState, useRef, useEffect } = React;
 
-
-
+        // ── STATUS LINE ──────────────────────────────────────────
+        // tracks mouse position and whether a file is loaded
         function StatusLine({ hasFile }) {
             const [coords, setCoords] = useState({ x: 0, y: 0 });
             useEffect(() => {
                 const h = (e) => setCoords({ x: e.clientX, y: e.clientY });
-                window.addEventListener('mousemove', h); return () => window.removeEventListener('mousemove', h);
+                window.addEventListener('mousemove', h);
+                return () => window.removeEventListener('mousemove', h);
             }, []);
             return React.createElement('div', { className: 'status-line' },
-                React.createElement('div', { className: 'status-dot', style: hasFile ? { background: '#00CC66' } : {} }),
+                React.createElement('div', {
+                    className: 'status-dot',
+                    style: hasFile ? { background: '#00CC66' } : {}
+                }),
                 React.createElement('span', { className: 'status-text' },
-                    hasFile ? 'SPECIMEN LOADED — READY FOR ANALYSIS' : 'AWAITING BIOLOGICAL SPECIMEN'),
-                React.createElement('span', { className: 'status-coords' }, `${coords.x}px · ${coords.y}px`)
+                    hasFile ? 'SPECIMEN LOADED -- READY FOR ANALYSIS' : 'AWAITING BIOLOGICAL SPECIMEN'
+                ),
+                React.createElement('span', { className: 'status-coords' },
+                    coords.x + 'px  ' + coords.y + 'px'
+                )
             );
         }
 
+        // ── UPLOAD SCREEN ────────────────────────────────────────
+        // handles drag+drop, file picker, webcam, camera flip
         function UploadScreen({ onScan }) {
             const [dragOver, setDragOver] = useState(false);
             const [previewUrl, setPreviewUrl] = useState(null);
             const [webcamActive, setWebcamActive] = useState(false);
             const [facingMode, setFacingMode] = useState('environment');
+
             const fileRef = useRef(null);
             const cameraRef = useRef(null);
             const videoRef = useRef(null);
             const streamRef = useRef(null);
 
-            const handleFile = (file) => {
+            function handleFile(file) {
                 if (!file || !file.type.startsWith('image/')) return;
                 setPreviewUrl(URL.createObjectURL(file));
                 setWebcamActive(false);
-                streamRef.current?.getTracks().forEach(t => t.stop()); streamRef.current = null;
-            };
-            const handleDrop = (e) => { e.preventDefault(); setDragOver(false); handleFile(e.dataTransfer.files[0]) };
+                stopStream();
+            }
 
-            const startCamera = async (mode) => {
-                streamRef.current?.getTracks().forEach(t => t.stop());
+            function handleDrop(e) {
+                e.preventDefault();
+                setDragOver(false);
+                handleFile(e.dataTransfer.files[0]);
+            }
+
+            function stopStream() {
+                if (streamRef.current) {
+                    streamRef.current.getTracks().forEach(function (t) { t.stop(); });
+                    streamRef.current = null;
+                }
+            }
+
+            async function startCamera(mode) {
+                stopStream();
                 try {
                     const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: mode } });
-                    streamRef.current = stream; setWebcamActive(true); setPreviewUrl(null);
-                    setTimeout(() => { if (videoRef.current) videoRef.current.srcObject = stream; }, 50);
-                } catch { alert('YOUR DEVICE REFUSES TO COOPERATE'); }
-            };
+                    streamRef.current = stream;
+                    setWebcamActive(true);
+                    setPreviewUrl(null);
+                    setTimeout(function () {
+                        if (videoRef.current) videoRef.current.srcObject = stream;
+                    }, 50);
+                } catch (e) {
+                    alert('YOUR DEVICE REFUSES TO COOPERATE');
+                }
+            }
 
-            const toggleWebcam = () => {
-                if (webcamActive) { streamRef.current?.getTracks().forEach(t => t.stop()); streamRef.current = null; setWebcamActive(false); return; }
+            function toggleWebcam() {
+                if (webcamActive) { stopStream(); setWebcamActive(false); return; }
                 startCamera(facingMode);
-            };
+            }
 
-            const switchCamera = (e) => {
+            function switchCamera(e) {
                 e.stopPropagation();
-                const newMode = facingMode === 'user' ? 'environment' : 'user';
-                setFacingMode(newMode);
-                if (webcamActive) startCamera(newMode);
-            };
-            const captureWebcam = () => {
-                const v = videoRef.current; if (!v) return;
+                const next = facingMode === 'user' ? 'environment' : 'user';
+                setFacingMode(next);
+                if (webcamActive) startCamera(next);
+            }
+
+            function captureWebcam() {
+                const v = videoRef.current;
+                if (!v) return;
                 const canvas = document.createElement('canvas');
-                canvas.width = v.videoWidth; canvas.height = v.videoHeight;
+                canvas.width = v.videoWidth;
+                canvas.height = v.videoHeight;
                 canvas.getContext('2d').drawImage(v, 0, 0);
-                canvas.toBlob(blob => {
+                canvas.toBlob(function (blob) {
                     setPreviewUrl(URL.createObjectURL(blob));
                     setWebcamActive(false);
-                    streamRef.current?.getTracks().forEach(t => t.stop()); streamRef.current = null;
+                    stopStream();
                 });
-            };
-            useEffect(() => () => { streamRef.current?.getTracks().forEach(t => t.stop()); }, []);
+            }
+
+            useEffect(function () {
+                return function () { stopStream(); };
+            }, []);
+
             const canScan = previewUrl || webcamActive;
 
             return React.createElement('div', { className: 'screen-upload' },
@@ -867,17 +149,17 @@
                 React.createElement('div', { className: 'vignette' }),
                 React.createElement('div', { className: 'amb-glow' }),
 
+                // title with glitch pseudo-elements handled in css
                 React.createElement('div', { className: 'title-wrap' },
                     React.createElement('span', { className: 'title-main' }, 'SHOW ME YOUR FRIDGE')
                 ),
 
-
-
+                // drop zone
                 React.createElement('div', {
-                    className: `drop-zone${dragOver ? ' drag-over' : ''}`,
-                    onClick: () => !webcamActive && fileRef.current.click(),
-                    onDragOver: (e) => { e.preventDefault(); setDragOver(true); },
-                    onDragLeave: () => setDragOver(false),
+                    className: 'drop-zone' + (dragOver ? ' drag-over' : ''),
+                    onClick: function () { if (!webcamActive) fileRef.current.click(); },
+                    onDragOver: function (e) { e.preventDefault(); setDragOver(true); },
+                    onDragLeave: function () { setDragOver(false); },
                     onDrop: handleDrop,
                     style: { cursor: webcamActive ? 'default' : 'pointer' }
                 },
@@ -885,69 +167,110 @@
                     React.createElement('div', { className: 'zone-scanline' }),
                     React.createElement('div', { className: 'corner-tr' }),
                     React.createElement('div', { className: 'corner-bl' }),
+
                     previewUrl && React.createElement('img', { src: previewUrl, className: 'preview-img', alt: '' }),
                     previewUrl && React.createElement('div', { className: 'preview-overlay' }),
-                    webcamActive && React.createElement('video', { ref: videoRef, className: 'webcam-video', autoPlay: true, playsInline: true, muted: true }),
-                    webcamActive && React.createElement('button', { className: 'capture-btn', onClick: (e) => { e.stopPropagation(); captureWebcam(); } }, 'CAPTURE'),
+
+                    webcamActive && React.createElement('video', {
+                        ref: videoRef, className: 'webcam-video',
+                        autoPlay: true, playsInline: true, muted: true
+                    }),
+                    webcamActive && React.createElement('button', {
+                        className: 'capture-btn',
+                        onClick: function (e) { e.stopPropagation(); captureWebcam(); }
+                    }, 'CAPTURE'),
+
                     !previewUrl && !webcamActive && React.createElement(React.Fragment, null,
-                        React.createElement('div', { className: 'drop-icon' }, '⚠'),
+                        // plain text, no emoji
+                        React.createElement('div', { className: 'drop-icon' }, '[ + ]'),
                         React.createElement('div', { className: 'drop-text' },
-                            'DRAG YOUR EVIDENCE HERE', React.createElement('br'),
-                            'or ', React.createElement('em', null, 'click to browse files')
+                            'DRAG YOUR EVIDENCE HERE',
+                            React.createElement('br'),
+                            'OR ',
+                            React.createElement('em', null, 'CLICK TO BROWSE FILES')
                         )
                     )
                 ),
 
-                React.createElement('input', { ref: fileRef, type: 'file', accept: 'image/*', style: { display: 'none' }, onChange: (e) => handleFile(e.target.files[0]) }),
-                React.createElement('input', { ref: cameraRef, type: 'file', accept: 'image/*', capture: 'environment', style: { display: 'none' }, onChange: (e) => handleFile(e.target.files[0]) }),
+                // hidden file inputs
+                React.createElement('input', {
+                    ref: fileRef, type: 'file', accept: 'image/*',
+                    style: { display: 'none' },
+                    onChange: function (e) { handleFile(e.target.files[0]); }
+                }),
+                React.createElement('input', {
+                    ref: cameraRef, type: 'file', accept: 'image/*', capture: 'environment',
+                    style: { display: 'none' },
+                    onChange: function (e) { handleFile(e.target.files[0]); }
+                }),
 
                 React.createElement(StatusLine, { hasFile: !!previewUrl }),
 
+                // camera buttons
                 React.createElement('div', { className: 'webcam-strip' },
                     React.createElement('button', {
                         className: 'btn-webcam',
-                        onClick: (e) => { e.stopPropagation(); cameraRef.current.click(); }
+                        onClick: function (e) { e.stopPropagation(); cameraRef.current.click(); }
                     }, 'NATIVE CAMERA'),
                     React.createElement('button', {
-                        className: `btn-webcam${webcamActive ? ' active' : ''}`,
-                        onClick: (e) => { e.stopPropagation(); toggleWebcam(); }
-                    }, webcamActive ? '◼ STOP WEBCAM' : '◉ WEB CAM'),
+                        className: 'btn-webcam' + (webcamActive ? ' active' : ''),
+                        onClick: function (e) { e.stopPropagation(); toggleWebcam(); }
+                    }, webcamActive ? 'STOP WEBCAM' : 'WEBCAM'),
                     webcamActive && React.createElement('button', {
                         className: 'btn-webcam',
                         onClick: switchCamera
                     }, 'FLIP CAM'),
-                    React.createElement('span', { className: 'strip-div' }, '——'),
-                    React.createElement('span', { style: { fontSize: '9px', color: '#252525', letterSpacing: '0.12em' } }, 'NO DATA LEAVES THIS DEVICE')
+                    React.createElement('span', { className: 'strip-div' }, '--'),
+                    React.createElement('span', {
+                        style: { fontSize: '10px', color: '#444', letterSpacing: '0.08em' }
+                    }, 'NO DATA LEAVES THIS DEVICE')
                 ),
 
                 React.createElement('div', { className: 'subtitle-pantry' }, 'SHOW ME THE PANTRY'),
 
+                // scan button -- disabled until image is loaded
                 React.createElement('div', { className: 'btn-scan-wrap' },
                     React.createElement('div', { className: 'btn-ring' }),
                     React.createElement('div', { className: 'btn-glow' }),
                     React.createElement('button', {
                         className: 'btn-scan',
                         disabled: !canScan,
-                        onClick: () => onScan(previewUrl)
+                        onClick: function () { onScan(previewUrl); }
                     }, 'SCAN YOUR BIOHAZARD')
                 )
             );
         }
 
+        // ── RESULTS SCREEN ───────────────────────────────────────
+        // calls /api/analyze with the image, then renders the results
+        //
+        // variables the ai populates in result:
+        //   result.fridgeMood        -- string, e.g. "MILDLY CURSED"
+        //   result.items[]           -- detected ingredients
+        //     .name                  -- string
+        //     .quantity              -- string (optional)
+        //     .percentage            -- string e.g. "84%"
+        //     .statusLabel           -- string, warning label (optional)
+        //   result.recipes[]         -- real recipes
+        //     .name                  -- string
+        //     .ingredients[]         -- array of strings
+        //     .steps[]               -- array of strings, max 3
+        //     .eatRating             -- string e.g. "RELUCTANTLY" / "STRONG NO" / "ACTUALLY YES"
+        //     .meta                  -- string e.g. "10 MIN  SERVES 1"
+        //   result.jokeRecipes[]     -- same shape as recipes, but absurd
         function ResultsScreen({ previewUrl, onReset }) {
             const [status, setStatus] = useState('ANALYZING...');
             const [result, setResult] = useState(null);
             const [error, setError] = useState(null);
 
-            useEffect(() => {
+            useEffect(function () {
                 if (!previewUrl) return;
-
-                const analyzeImage = async () => {
+                async function analyzeImage() {
                     try {
-                        const blob = await fetch(previewUrl).then(r => r.blob());
+                        const blob = await fetch(previewUrl).then(function (r) { return r.blob(); });
                         const reader = new FileReader();
                         reader.readAsDataURL(blob);
-                        reader.onloadend = async () => {
+                        reader.onloadend = async function () {
                             const base64data = reader.result.split(',')[1];
                             try {
                                 const response = await fetch('/api/analyze', {
@@ -968,97 +291,130 @@
                         setError('Failed to process image');
                         setStatus('ANALYSIS FAILED');
                     }
-                };
-
+                }
                 analyzeImage();
             }, [previewUrl]);
 
-            if (error || !result) {
+            // loading / error state
+            if (!result) {
                 return React.createElement('div', { className: 'screen-results' },
-                    React.createElement('div', { className: 'scanlines' }),
-                    React.createElement('div', { className: 'vignette' }),
-                    React.createElement('div', { className: 'amb-glow' }),
                     previewUrl && React.createElement('img', { src: previewUrl, className: 'wip-preview', alt: '' }),
-                    error ? React.createElement('div', { style: { color: 'var(--primary)', fontFamily: 'Space Mono', textAlign: 'center', marginTop: '20px', zIndex: 11, position: 'relative' } }, `ERROR: ${error}`)
-                        : React.createElement('div', { className: 'wip-title', style: { zIndex: 11, position: 'relative', marginTop: '20px' } }, status),
-                    React.createElement('button', { className: 'btn-back', onClick: onReset, style: { zIndex: 11, position: 'relative', marginTop: '20px' } }, '← BACK TO UPLOAD')
+                    error
+                        ? React.createElement('div', { className: 'error-msg' }, 'ERROR: ' + error)
+                        : React.createElement(React.Fragment, null,
+                            React.createElement('div', { className: 'analyzing-text' }, status),
+                            React.createElement('div', { className: 'progress-bar' },
+                                React.createElement('div', { className: 'progress-fill' })
+                            )
+                        ),
+                    React.createElement('button', { className: 'btn-back', onClick: onReset }, 'BACK TO UPLOAD')
                 );
             }
 
-            const getRatingColor = (rating) => {
+            // pick a color for the eat rating
+            function ratingColor(rating) {
                 const r = (rating || '').toUpperCase();
-                if (r.includes('YES')) return 'green';
-                if (r.includes('NO')) return 'teal';
-                return 'orange';
-            };
+                if (r.includes('YES')) return '#00CC66';
+                if (r.includes('NO')) return '#ff6666';
+                return '#FF9800';
+            }
+
+            // shared card component for real + joke recipes
+            function RecipeCard({ recipe, isJoke }) {
+                return React.createElement('div', { className: 'recipe-card' + (isJoke ? ' joke' : '') },
+                    React.createElement('div', { className: 'recipe-card-header' },
+                        React.createElement('div', { className: 'recipe-title' }, recipe.name),
+                        React.createElement('div', { className: 'recipe-rating-box' },
+                            React.createElement('div', { className: 'recipe-rating-label' }, 'WOULD I EAT THIS?'),
+                            React.createElement('div', {
+                                className: 'recipe-rating',
+                                style: { color: ratingColor(recipe.eatRating) }
+                            }, recipe.eatRating || '???')
+                        )
+                    ),
+                    React.createElement('div', { className: 'recipe-tags' },
+                        (recipe.ingredients || []).map(function (ing, j) {
+                            return React.createElement('div', { key: j, className: 'tag' }, ing);
+                        })
+                    ),
+                    React.createElement('div', { className: 'recipe-steps' },
+                        (recipe.steps || []).map(function (step, j) {
+                            return React.createElement('div', { key: j, className: 'recipe-step' },
+                                React.createElement('span', { className: 'step-num' }, (j + 1) + '.'),
+                                React.createElement('span', null, step)
+                            );
+                        })
+                    ),
+                    React.createElement('div', { className: 'recipe-footer' },
+                        React.createElement('span', null, recipe.meta || '??? MIN  SERVES 1'),
+                        React.createElement('span', null, isJoke ? 'JOKE RECIPE -- DO NOT ATTEMPT' : 'SYSTEM v2.7')
+                    )
+                );
+            }
 
             return React.createElement('div', { className: 'res-container' },
-                React.createElement('div', { className: 'scanlines' }),
-                React.createElement('div', { className: 'vignette' }),
 
+                // header bar
                 React.createElement('div', { className: 'res-header' },
-                    React.createElement('div', { className: 'res-title' }, 'ANALYSIS COMPLETE — YOU HAVE BEEN JUDGED'),
+                    React.createElement('div', { className: 'res-title' }, 'ANALYSIS COMPLETE -- YOU HAVE BEEN JUDGED'),
                     React.createElement('div', { className: 'res-header-right' },
-                        React.createElement('div', { className: 'res-mood-box' },
-                            React.createElement('span', { className: 'res-mood-label' }, 'FRIDGE MOOD:'),
+                        React.createElement('div', { className: 'mood-badge' },
+                            React.createElement('span', { className: 'mood-label' }, 'FRIDGE MOOD: '),
                             result.fridgeMood || 'UNKNOWN'
                         ),
-                        React.createElement('button', { className: 'res-btn-reset', onClick: onReset }, '⟳ RESET')
+                        React.createElement('button', { className: 'btn-reset', onClick: onReset }, 'RESET')
                     )
                 ),
 
+                // two column body
                 React.createElement('div', { className: 'res-body' },
+
+                    // left column: image + detected items
                     React.createElement('div', { className: 'res-col-left' },
                         React.createElement('div', { className: 'res-img-wrap' },
-                            React.createElement('img', { src: previewUrl, className: 'res-img', alt: 'Fridge' })
+                            React.createElement('img', { src: previewUrl, className: 'res-img', alt: 'your fridge' })
                         ),
-                        React.createElement('div', { className: 'res-section-title' }, `DETECTED ITEMS (${(result.items || []).length})`),
-                        React.createElement('div', { className: 'res-item-list' },
-                            (result.items || []).map((item, i) =>
-                                React.createElement('div', { key: i, className: 'res-item' },
-                                    React.createElement('div', { className: 'res-item-name' },
+                        React.createElement('div', { className: 'section-label' },
+                            'DETECTED ITEMS (' + (result.items || []).length + ')'
+                        ),
+                        React.createElement('div', { className: 'item-list' },
+                            (result.items || []).map(function (item, i) {
+                                return React.createElement('div', { key: i, className: 'item-row' },
+                                    React.createElement('div', { className: 'item-name' },
                                         item.name,
-                                        item.quantity && React.createElement('span', { style: { color: 'var(--gray)', fontSize: '10px', display: 'block', marginTop: '4px', letterSpacing: '0.05em' } }, `QTY: ${item.quantity}`)
+                                        item.quantity && React.createElement('span', { className: 'item-qty' },
+                                            'QTY: ' + item.quantity
+                                        )
                                     ),
-                                    React.createElement('div', { className: 'res-item-right' },
-                                        React.createElement('div', { className: 'res-item-pct' }, item.percentage),
-                                        item.statusLabel && React.createElement('div', { className: 'res-item-warn' }, item.statusLabel)
+                                    React.createElement('div', { className: 'item-right' },
+                                        React.createElement('div', { className: 'item-pct' }, item.percentage),
+                                        item.statusLabel && React.createElement('div', { className: 'item-warn' }, item.statusLabel)
                                     )
-                                )
-                            )
+                                );
+                            })
                         )
                     ),
 
+                    // right column: real recipes then joke recipes
                     React.createElement('div', { className: 'res-col-right' },
-                        React.createElement('div', { className: 'res-section-title' }, `GENERATED RECIPES (${(result.recipes || []).length})`),
-                        React.createElement('div', { className: 'res-recipe-list' },
-                            (result.recipes || []).map((recipe, i) =>
-                                React.createElement('div', { key: i, className: 'res-recipe' },
-                                    React.createElement('div', { className: 'res-recipe-header' },
-                                        React.createElement('div', { className: 'res-recipe-title' }, recipe.name),
-                                        React.createElement('div', { className: 'res-recipe-rating-box' },
-                                            React.createElement('div', { className: 'res-recipe-rating-label' }, 'WOULD I EAT THIS?'),
-                                            React.createElement('div', { className: `res-recipe-rating ${getRatingColor(recipe.eatRating)}` }, recipe.eatRating)
-                                        )
-                                    ),
-                                    React.createElement('div', { className: 'res-recipe-tags' },
-                                        (recipe.ingredients || []).map((ing, j) =>
-                                            React.createElement('div', { key: j, className: 'res-tag' }, ing)
-                                        )
-                                    ),
-                                    React.createElement('div', { className: 'res-recipe-steps' },
-                                        (recipe.steps || []).map((step, j) =>
-                                            React.createElement('div', { key: j, className: 'res-step' },
-                                                React.createElement('div', { className: 'res-step-num' }, `${j + 1}.`),
-                                                React.createElement('div', null, step)
-                                            )
-                                        )
-                                    ),
-                                    React.createElement('div', { className: 'res-recipe-footer' },
-                                        React.createElement('span', null, recipe.meta || '??? MIN ・ SERVES 1'),
-                                        React.createElement('span', null, 'SYSTEM v2.7')
-                                    )
-                                )
+                        React.createElement('div', { className: 'section-label' },
+                            'GENERATED RECIPES (' + (result.recipes || []).length + ')'
+                        ),
+                        React.createElement('div', { className: 'recipe-list' },
+                            (result.recipes || []).map(function (recipe, i) {
+                                return React.createElement(RecipeCard, { key: i, recipe: recipe, isJoke: false });
+                            })
+                        ),
+
+                        (result.jokeRecipes || []).length > 0 && React.createElement(React.Fragment, null,
+                            React.createElement('div', {
+                                className: 'section-label',
+                                style: { marginTop: '28px' }
+                            }, 'JOKE RECIPES (' + result.jokeRecipes.length + ') -- DO NOT ATTEMPT'),
+                            React.createElement('div', { className: 'recipe-list' },
+                                (result.jokeRecipes || []).map(function (recipe, i) {
+                                    return React.createElement(RecipeCard, { key: i, recipe: recipe, isJoke: true });
+                                })
                             )
                         )
                     )
@@ -1066,14 +422,28 @@
             );
         }
 
+        // ── ROOT APP ─────────────────────────────────────────────
         function App() {
             const [screen, setScreen] = useState('upload');
             const [previewUrl, setPreviewUrl] = useState(null);
             const isMobile = window.innerWidth <= 768;
-            return React.createElement('div', { style: { width: '100vw', minHeight: '100vh', overflow: isMobile ? 'visible' : 'hidden', position: 'relative' } },
+
+            return React.createElement('div', {
+                style: {
+                    width: '100vw',
+                    minHeight: '100vh',
+                    overflow: isMobile ? 'visible' : 'hidden',
+                    position: 'relative'
+                }
+            },
                 screen === 'upload'
-                    ? React.createElement(UploadScreen, { onScan: (url) => { setPreviewUrl(url); setScreen('results'); } })
-                    : React.createElement(ResultsScreen, { previewUrl, onReset: () => { setPreviewUrl(null); setScreen('upload'); } })
+                    ? React.createElement(UploadScreen, {
+                        onScan: function (url) { setPreviewUrl(url); setScreen('results'); }
+                    })
+                    : React.createElement(ResultsScreen, {
+                        previewUrl: previewUrl,
+                        onReset: function () { setPreviewUrl(null); setScreen('upload'); }
+                    })
             );
         }
 
