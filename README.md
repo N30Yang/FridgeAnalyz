@@ -1,0 +1,2 @@
+# FridgeAnalyz
+Analzes your fridge :)
