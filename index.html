@@ -738,6 +738,301 @@
             filter: saturate(0) contrast(1.3);
             border: 1px solid #181818
         }
+
+        /* NEW RESULTS UI */
+        .res-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 32px 48px;
+            z-index: 10;
+            position: relative;
+            gap: 24px;
+            box-sizing: border-box;
+        }
+
+        .res-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-bottom: 1px solid #222;
+            padding-bottom: 16px;
+            flex-shrink: 0;
+        }
+
+        .res-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 42px;
+            color: var(--white);
+            letter-spacing: 0.05em;
+            line-height: 1;
+        }
+
+        .res-header-right {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .res-mood-box {
+            border: 1px solid #332200;
+            padding: 6px 16px;
+            color: #CC9900;
+            font-size: 11px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            background: rgba(51, 34, 0, 0.2);
+        }
+
+        .res-mood-label {
+            color: #886600;
+            margin-right: 8px;
+        }
+
+        .res-btn-reset {
+            background: transparent;
+            border: 1px solid #333;
+            color: #888;
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            padding: 6px 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .res-btn-reset:hover {
+            border-color: var(--red);
+            color: var(--red);
+            background: var(--red-glow);
+        }
+
+        .res-body {
+            display: flex;
+            gap: 48px;
+            flex: 1;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        .res-col-left {
+            width: 340px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            flex-shrink: 0;
+            overflow-y: auto;
+            padding-right: 16px;
+        }
+
+        .res-col-right {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            overflow-y: auto;
+            padding-right: 16px;
+        }
+
+        .res-img-wrap {
+            width: 100%;
+            height: 260px;
+            border: 1px solid #222;
+            position: relative;
+            overflow: hidden;
+            background: #000;
+            flex-shrink: 0;
+        }
+
+        .res-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            opacity: 0.7;
+            filter: contrast(1.2) grayscale(20%);
+        }
+
+        .res-section-title {
+            font-size: 10px;
+            color: #555;
+            letter-spacing: 0.2em;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .res-section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #222;
+        }
+
+        .res-item-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .res-item {
+            border-bottom: 1px solid #151515;
+            padding: 14px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .res-item-name {
+            font-size: 13px;
+            color: var(--white);
+            max-width: 65%;
+            line-height: 1.4;
+        }
+
+        .res-item-right {
+            text-align: right;
+        }
+
+        .res-item-pct {
+            font-size: 13px;
+            color: var(--blue);
+            font-weight: bold;
+        }
+
+        .res-item-warn {
+            font-size: 9px;
+            color: var(--red);
+            font-style: italic;
+            margin-top: 6px;
+            letter-spacing: 0.05em;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .res-recipe-list {
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+
+        .res-recipe {
+            border-bottom: 1px solid #151515;
+            padding-bottom: 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .res-recipe-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .res-recipe-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 32px;
+            color: var(--white);
+            letter-spacing: 0.05em;
+            line-height: 1.1;
+        }
+
+        .res-recipe-rating-box {
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .res-recipe-rating-label {
+            font-size: 9px;
+            color: #555;
+            letter-spacing: 0.1em;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .res-recipe-rating {
+            font-size: 13px;
+            font-weight: bold;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .res-recipe-rating.green {
+            color: #00CC66;
+        }
+
+        .res-recipe-rating.red {
+            color: var(--red);
+        }
+
+        .res-recipe-rating.orange {
+            color: #FF8800;
+        }
+
+        .res-recipe-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .res-tag {
+            border: 1px solid #222;
+            color: #666;
+            font-size: 10px;
+            padding: 5px 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .res-recipe-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .res-step {
+            display: flex;
+            gap: 16px;
+            font-size: 14px;
+            color: #999;
+            line-height: 1.5;
+        }
+
+        .res-step-num {
+            color: var(--red);
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .res-recipe-footer {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: #333;
+            letter-spacing: 0.1em;
+            margin-top: 12px;
+            text-transform: uppercase;
+        }
+
+        /* Scrollbar styles */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #222;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #444;
+        }
     </style>
 </head>
 
@@ -907,20 +1202,14 @@
                         reader.readAsDataURL(blob);
                         reader.onloadend = async () => {
                             const base64data = reader.result.split(',')[1];
-                            
                             try {
                                 const response = await fetch('/api/analyze', {
                                     method: 'POST',
                                     headers: { 'Content-Type': 'application/json' },
                                     body: JSON.stringify({ base64Image: base64data })
                                 });
-                                
                                 const data = await response.json();
-                                
-                                if (!response.ok) {
-                                    throw new Error(data.error || 'Failed to analyze');
-                                }
-                                
+                                if (!response.ok) throw new Error(data.error || 'Failed to analyze');
                                 setResult(data.result);
                                 setStatus('ANALYSIS COMPLETE');
                             } catch (err) {
@@ -937,22 +1226,96 @@
                 analyzeImage();
             }, [previewUrl]);
 
-            return React.createElement('div', { className: 'screen-results' },
+            if (error || !result) {
+                return React.createElement('div', { className: 'screen-results' },
+                    React.createElement('div', { className: 'scanlines' }),
+                    React.createElement('div', { className: 'vignette' }),
+                    React.createElement('div', { className: 'amb-glow' }),
+                    previewUrl && React.createElement('img', { src: previewUrl, className: 'wip-preview', alt: '' }),
+                    error ? React.createElement('div', { style: { color: 'var(--red)', fontFamily: 'Space Mono', textAlign: 'center', marginTop: '20px', zIndex: 11, position: 'relative' } }, `ERROR: ${error}`)
+                        : React.createElement('div', { className: 'wip-title', style: { zIndex: 11, position: 'relative', marginTop: '20px' } }, status),
+                    React.createElement('button', { className: 'btn-back', onClick: onReset, style: { zIndex: 11, position: 'relative', marginTop: '20px' } }, '← BACK TO UPLOAD')
+                );
+            }
+
+            const getRatingColor = (rating) => {
+                const r = (rating || '').toUpperCase();
+                if (r.includes('YES')) return 'green';
+                if (r.includes('NO')) return 'red';
+                return 'orange';
+            };
+
+            return React.createElement('div', { className: 'res-container' },
                 React.createElement('div', { className: 'scanlines' }),
                 React.createElement('div', { className: 'vignette' }),
-                React.createElement('div', { className: 'amb-glow' }),
-                previewUrl && React.createElement('img', { src: previewUrl, className: 'wip-preview', alt: '' }),
-                React.createElement('div', { className: 'wip-label' }, '// SYSTEM OUTPUT'),
-                
-                error ? React.createElement('div', { style: { color: 'var(--red)', fontFamily: 'Space Mono', textAlign: 'center', marginTop: '20px', zIndex: 11, position: 'relative' } }, `ERROR: ${error}`) : null,
-                
-                result 
-                    ? React.createElement('div', { style: { maxWidth: '800px', width: '90%', background: 'rgba(14, 14, 14, 0.9)', padding: '24px', border: '1px solid var(--red-dim)', marginTop: '20px', fontSize: '16px', lineHeight: '1.8', whiteSpace: 'pre-wrap', overflowY: 'auto', zIndex: 11, position: 'relative', height: '60vh', boxShadow: '0 0 30px rgba(0, 0, 0, 0.8)' } }, result)
-                    : !error ? React.createElement('div', { className: 'wip-title', style: { zIndex: 11, position: 'relative', marginTop: '20px' } },
-                            React.createElement('span', null, status)
-                        ) : null,
-                        
-                React.createElement('button', { className: 'btn-back', onClick: onReset, style: { zIndex: 11, position: 'relative', marginTop: '20px' } }, '← BACK TO UPLOAD')
+
+                React.createElement('div', { className: 'res-header' },
+                    React.createElement('div', { className: 'res-title' }, 'ANALYSIS COMPLETE — YOU HAVE BEEN JUDGED'),
+                    React.createElement('div', { className: 'res-header-right' },
+                        React.createElement('div', { className: 'res-mood-box' },
+                            React.createElement('span', { className: 'res-mood-label' }, 'FRIDGE MOOD:'),
+                            result.fridgeMood || 'UNKNOWN'
+                        ),
+                        React.createElement('button', { className: 'res-btn-reset', onClick: onReset }, '⟳ RESET')
+                    )
+                ),
+
+                React.createElement('div', { className: 'res-body' },
+                    React.createElement('div', { className: 'res-col-left' },
+                        React.createElement('div', { className: 'res-img-wrap' },
+                            React.createElement('img', { src: previewUrl, className: 'res-img', alt: 'Fridge' })
+                        ),
+                        React.createElement('div', { className: 'res-section-title' }, `DETECTED ITEMS (${(result.items || []).length})`),
+                        React.createElement('div', { className: 'res-item-list' },
+                            (result.items || []).map((item, i) =>
+                                React.createElement('div', { key: i, className: 'res-item' },
+                                    React.createElement('div', { className: 'res-item-name' },
+                                        item.name,
+                                        item.quantity && React.createElement('span', { style: { color: 'var(--gray)', fontSize: '10px', display: 'block', marginTop: '4px', letterSpacing: '0.05em' } }, `QTY: ${item.quantity}`)
+                                    ),
+                                    React.createElement('div', { className: 'res-item-right' },
+                                        React.createElement('div', { className: 'res-item-pct' }, item.percentage),
+                                        item.statusLabel && React.createElement('div', { className: 'res-item-warn' }, item.statusLabel)
+                                    )
+                                )
+                            )
+                        )
+                    ),
+
+                    React.createElement('div', { className: 'res-col-right' },
+                        React.createElement('div', { className: 'res-section-title' }, `GENERATED RECIPES (${(result.recipes || []).length})`),
+                        React.createElement('div', { className: 'res-recipe-list' },
+                            (result.recipes || []).map((recipe, i) =>
+                                React.createElement('div', { key: i, className: 'res-recipe' },
+                                    React.createElement('div', { className: 'res-recipe-header' },
+                                        React.createElement('div', { className: 'res-recipe-title' }, recipe.name),
+                                        React.createElement('div', { className: 'res-recipe-rating-box' },
+                                            React.createElement('div', { className: 'res-recipe-rating-label' }, 'WOULD I EAT THIS?'),
+                                            React.createElement('div', { className: `res-recipe-rating ${getRatingColor(recipe.eatRating)}` }, recipe.eatRating)
+                                        )
+                                    ),
+                                    React.createElement('div', { className: 'res-recipe-tags' },
+                                        (recipe.ingredients || []).map((ing, j) =>
+                                            React.createElement('div', { key: j, className: 'res-tag' }, ing)
+                                        )
+                                    ),
+                                    React.createElement('div', { className: 'res-recipe-steps' },
+                                        (recipe.steps || []).map((step, j) =>
+                                            React.createElement('div', { key: j, className: 'res-step' },
+                                                React.createElement('div', { className: 'res-step-num' }, `${j + 1}.`),
+                                                React.createElement('div', null, step)
+                                            )
+                                        )
+                                    ),
+                                    React.createElement('div', { className: 'res-recipe-footer' },
+                                        React.createElement('span', null, recipe.meta || '??? MIN ・ SERVES 1'),
+                                        React.createElement('span', null, 'SYSTEM v2.7')
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
             );
         }
 
