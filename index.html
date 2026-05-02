@@ -14,30 +14,9 @@
 </head>
 
 <body>
-    <canvas id="noise-canvas"></canvas>
     <div id="root"></div>
 
     <script>
-        // noise canvas -- draws random pixels every frame for film grain effect
-        (function () {
-            const c = document.getElementById('noise-canvas');
-            const ctx = c.getContext('2d');
-            function resize() { c.width = window.innerWidth; c.height = window.innerHeight; }
-            resize();
-            window.addEventListener('resize', resize);
-            function frame() {
-                const id = ctx.createImageData(c.width, c.height);
-                const d = id.data;
-                for (let i = 0; i < d.length; i += 4) {
-                    const v = Math.random() * 255 | 0;
-                    d[i] = d[i + 1] = d[i + 2] = v;
-                    d[i + 3] = 255;
-                }
-                ctx.putImageData(id, 0, 0);
-                requestAnimationFrame(frame);
-            }
-            frame();
-        })();
 
         const { useState, useRef, useEffect } = React;
 
