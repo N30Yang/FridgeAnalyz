@@ -182,16 +182,12 @@
             object-fit: cover;
             position: absolute;
             inset: 0;
-            opacity: 0.55;
-            filter: saturate(0.5) contrast(1.1)
+            opacity: 1;
+            z-index: 1;
         }
 
         .preview-overlay {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(180deg, rgba(8, 8, 8, 0.5) 0%, transparent 40%, transparent 60%, rgba(8, 8, 8, 0.5) 100%);
-            z-index: 1;
-            pointer-events: none
+            display: none;
         }
 
         .webcam-video {
