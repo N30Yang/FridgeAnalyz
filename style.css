@@ -40,6 +40,14 @@ body {
     inset: 0;
     z-index: 9000;
     background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0, 0, 0, 0.12) 3px, rgba(0, 0, 0, 0.12) 4px);
+    animation: flicker 0.15s infinite;
+    opacity: 0.8;
+}
+
+@keyframes flicker {
+    0% { opacity: 0.8; }
+    50% { opacity: 0.65; }
+    100% { opacity: 0.8; }
 }
 
 .vignette {
@@ -105,7 +113,7 @@ body {
     position: relative;
 }
 
-.title-main::after {
+.title-main::before, .title-main::after {
     content: 'SHOW ME YOUR FRIDGE';
     position: absolute;
     top: 0; left: 0; right: 0;
@@ -114,7 +122,28 @@ body {
     letter-spacing: inherit;
     line-height: inherit;
     pointer-events: none;
+    opacity: 0;
+}
+
+/* Subtle orange glitch layer */
+.title-main::before {
+    color: var(--orange);
+    z-index: -1;
+    animation: subtleGlitch 8s infinite;
+}
+
+/* Subtle teal glitch layer */
+.title-main::after {
     color: var(--teal);
+    z-index: -2;
+    animation: subtleGlitch 8s infinite 0.1s;
+}
+
+@keyframes subtleGlitch {
+    0%, 95%, 100% { opacity: 0; transform: translate(0); clip-path: none; }
+    96% { opacity: 0.5; transform: translate(-2px, 1px); clip-path: inset(10% 0 30% 0); }
+    97% { opacity: 0.3; transform: translate(2px, -1px); clip-path: inset(40% 0 10% 0); }
+    98% { opacity: 0.4; transform: translate(-1px, 0); clip-path: inset(70% 0 5% 0); }
 }
 
 @keyframes titleBreath {
