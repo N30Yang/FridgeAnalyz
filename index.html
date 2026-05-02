@@ -1033,6 +1033,22 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #444;
         }
+
+        @media (max-width: 768px) {
+            .res-container { padding: 16px 20px; gap: 16px; }
+            .res-body { flex-direction: column; overflow-y: auto; gap: 32px; }
+            .res-col-left { width: 100%; overflow: visible; padding-right: 0; }
+            .res-col-right { width: 100%; overflow: visible; padding-right: 0; }
+            .res-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+            .res-header-right { width: 100%; justify-content: space-between; }
+            .res-title { font-size: 28px; }
+            .title-main { font-size: 14vw; }
+            .subtitle-pantry { font-size: 24px; }
+            .btn-scan { font-size: 20px; padding: 12px 32px; }
+            .drop-zone { height: 50vh; }
+            .webcam-strip { flex-wrap: wrap; justify-content: center; }
+            .status-line { flex-direction: column; text-align: center; gap: 6px; }
+        }
     </style>
 </head>
 
@@ -1091,6 +1107,7 @@
             const [dragOver, setDragOver] = useState(false);
             const [previewUrl, setPreviewUrl] = useState(null);
             const [webcamActive, setWebcamActive] = useState(false);
+            const [facingMode, setFacingMode] = useState('environment');
             const fileRef = useRef(null);
             const videoRef = useRef(null);
             const streamRef = useRef(null);
@@ -1102,13 +1119,26 @@
                 streamRef.current?.getTracks().forEach(t => t.stop()); streamRef.current = null;
             };
             const handleDrop = (e) => { e.preventDefault(); setDragOver(false); handleFile(e.dataTransfer.files[0]) };
-            const toggleWebcam = async () => {
-                if (webcamActive) { streamRef.current?.getTracks().forEach(t => t.stop()); streamRef.current = null; setWebcamActive(false); return; }
+            
+            const startCamera = async (mode) => {
+                streamRef.current?.getTracks().forEach(t => t.stop());
                 try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: mode } });
                     streamRef.current = stream; setWebcamActive(true); setPreviewUrl(null);
                     setTimeout(() => { if (videoRef.current) videoRef.current.srcObject = stream; }, 50);
                 } catch { alert('YOUR DEVICE REFUSES TO COOPERATE'); }
+            };
+
+            const toggleWebcam = () => {
+                if (webcamActive) { streamRef.current?.getTracks().forEach(t => t.stop()); streamRef.current = null; setWebcamActive(false); return; }
+                startCamera(facingMode);
+            };
+
+            const switchCamera = (e) => {
+                e.stopPropagation();
+                const newMode = facingMode === 'user' ? 'environment' : 'user';
+                setFacingMode(newMode);
+                if (webcamActive) startCamera(newMode);
             };
             const captureWebcam = () => {
                 const v = videoRef.current; if (!v) return;
@@ -1169,6 +1199,10 @@
                         className: `btn-webcam${webcamActive ? ' active' : ''}`,
                         onClick: (e) => { e.stopPropagation(); toggleWebcam(); }
                     }, webcamActive ? '◼ STOP CAMERA' : '◉ USE WEBCAM'),
+                    webcamActive && React.createElement('button', {
+                        className: 'btn-webcam',
+                        onClick: switchCamera
+                    }, '🔄 SWITCH CAM'),
                     React.createElement('span', { className: 'strip-div' }, '——'),
                     React.createElement('span', { style: { fontSize: '9px', color: '#252525', letterSpacing: '0.12em' } }, 'NO DATA LEAVES THIS DEVICE')
                 ),
