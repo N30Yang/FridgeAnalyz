@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SHOW ME YOUR FRIDGE</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    :root {
+      --red: #E8000A;
+      --red-dim: #6B0005;
+      --red-glow: rgba(232, 0, 10, 0.18);
+      --blue: #00AAFF;
+      --blue-dim: #005A8A;
+      --blue-glow: rgba(0, 170, 255, 0.15);
+      --white: #F0EDE8;
+      --gray: #666;
+      --dark: #080808;
+      --surface: #0E0E0E;
+    }
+
+    html,
+    body,
+    #root {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--dark)
+    }
+
+    body {
+      font-family: 'Space Mono', monospace;
+      color: var(--white);
+      cursor: crosshair
+    }
+
+    .scanlines {
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9000;
+      background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0, 0, 0, 0.12) 3px, rgba(0, 0, 0, 0.12) 4px)
+    }
+
+    .vignette {
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      z-index: 8999;
+      background: radial-gradient(ellipse at center, transparent 40%, rgba(0, 0, 0, 0.88) 100%)
+    }
+
+    #noise-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 8998;
+      opacity: 0.055;
+      pointer-events: none
+    }
+
+    .amb-glow {
+      pointer-events: none;
+      position: fixed;
+      bottom: -120px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 900px;
+      height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(ellipse, rgba(232, 0, 10, 0.18) 0%, transparent 70%);
+      z-index: 8997;
+      animation: ambPulse 4s ease-in-out infinite
+    }
+
+    @keyframes ambPulse {
+
+      0%,
+      100% {
+        opacity: 0.6;
+        transform: translateX(-50%) scaleX(1)
+      }
+
+      50% {
+        opacity: 1;
+        transform: translateX(-50%) scaleX(1.08)
+      }
+    }
+
+    .screen-upload {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      padding: 16px;
+      position: relative;
+      z-index: 10
+    }
+
+    .title-wrap {
+      position: relative;
+      text-align: center;
+      margin-bottom: 16px
+    }
+
+    .title-main {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(52px, 10vw, 136px);
+      letter-spacing: 0.05em;
+      line-height: 0.92;
+      color: var(--white);
+      display: block;
+      position: relative;
+      animation: titleBreath 6s ease-in-out infinite;
+      text-shadow: 0 0 80px rgba(232, 0, 10, 0.08);
+    }
+
+    @keyframes titleBreath {
+
+      0%,
+      100% {
+        letter-spacing: 0.05em
+      }
+
+      50% {
+        letter-spacing: 0.065em
+      }
+    }
+
+    .title-main::before,
+    .title-main::after {
+      content: 'SHOW ME YOUR FRIDGE';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: inherit;
+      letter-spacing: inherit;
+      line-height: inherit;
+      pointer-events: none;
+    }
+
+    .title-main::before {
+      color: var(--red);
+      animation: glitchR 7s infinite;
+      clip-path: polygon(0 20%, 100% 20%, 100% 40%, 0 40%)
+    }
+
+    .title-main::after {
+      color: var(--blue);
+      animation: glitchB 7s infinite;
+      clip-path: polygon(0 55%, 100% 55%, 100% 70%, 0 70%)
+    }
+
+    @keyframes glitchR {
+
+      0%,
+      89%,
+      100% {
+        transform: translate(0);
+        opacity: 0
+      }
+
+      90% {
+        transform: translate(-3px, 1px);
+        opacity: 0.8
+      }
+
+      91% {
+        transform: translate(3px, -1px);
+        opacity: 0.6
+      }
+
+      92% {
+        transform: translate(-1px, 0);
+        opacity: 0.9
+      }
+
+      93% {
+        transform: translate(0);
+        opacity: 0
+      }
+
+      96% {
+        transform: translate(2px, 1px);
+        opacity: 0.7
+      }
+
+      97% {
+        transform: translate(0);
+        opacity: 0
+      }
+    }
+
+    @keyframes glitchB {
+
+      0%,
+      89%,
+      100% {
+        transform: translate(0);
+        opacity: 0
+      }
+
+      90% {
+        transform: translate(3px, 0);
+        opacity: 0.7
+      }
+
+      91% {
+        transform: translate(-2px, 1px);
+        opacity: 0.5
+      }
+
+      92.5% {
+        transform: translate(0);
+        opacity: 0
+      }
+
+      95% {
+        transform: translate(-3px, -1px);
+        opacity: 0.6
+      }
+
+      96% {
+        transform: translate(0);
+        opacity: 0
+      }
+    }
+
+    .ticker-wrap {
+      overflow: hidden;
+      width: min(620px, 92vw);
+      margin-bottom: 6px;
+      border-top: 1px solid #1C1C1C;
+      border-bottom: 1px solid #1C1C1C;
+      padding: 4px 0
+    }
+
+    .ticker {
+      display: inline-flex;
+      gap: 0;
+      white-space: nowrap;
+      animation: tickerMove 22s linear infinite
+    }
+
+    @keyframes tickerMove {
+      from {
+        transform: translateX(0)
+      }
+
+      to {
+        transform: translateX(-50%)
+      }
+    }
+
+    .ticker span {
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #2E2E2E;
+      padding: 0 28px
+    }
+
+    .ticker span.red {
+      color: var(--red-dim)
+    }
+
+    .drop-zone {
+      width: min(300px, 92vw);
+      height: min(600px, 68vh);
+      border: 1.5px solid #2A0000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      margin: 12px 0 8px;
+      transition: border-color 0.2s;
+      background: var(--surface);
+    }
+
+    .drop-zone::before,
+    .drop-zone::after {
+      content: '';
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      border-color: var(--red-dim);
+      border-style: solid;
+      transition: border-color 0.2s, width 0.2s, height 0.2s;
+      z-index: 3;
+    }
+
+    .drop-zone::before {
+      top: -1px;
+      left: -1px;
+      border-width: 2px 0 0 2px
+    }
+
+    .drop-zone::after {
+      bottom: -1px;
+      right: -1px;
+      border-width: 0 2px 2px 0
+    }
+
+    .drop-zone .corner-tr,
+    .drop-zone .corner-bl {
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      border-color: var(--red-dim);
+      border-style: solid;
+      transition: border-color 0.2s, width 0.2s, height 0.2s;
+      z-index: 3;
+    }
+
+    .drop-zone .corner-tr {
+      top: -1px;
+      right: -1px;
+      border-width: 2px 2px 0 0
+    }
+
+    .drop-zone .corner-bl {
+      bottom: -1px;
+      left: -1px;
+      border-width: 0 0 2px 2px
+    }
+
+    .drop-zone:hover,
+    .drop-zone.drag-over {
+      border-color: var(--red)
+    }
+
+    .drop-zone:hover::before,
+    .drop-zone.drag-over::before,
+    .drop-zone:hover::after,
+    .drop-zone.drag-over::after,
+    .drop-zone:hover .corner-tr,
+    .drop-zone.drag-over .corner-tr,
+    .drop-zone:hover .corner-bl,
+    .drop-zone.drag-over .corner-bl {
+      border-color: var(--red);
+      width: 34px;
+      height: 34px
+    }
+
+    .zone-bg {
+      position: absolute;
+      inset: 0;
+      background: var(--red-glow);
+      opacity: 0;
+      transition: opacity 0.2s
+    }
+
+    .drop-zone:hover .zone-bg,
+    .drop-zone.drag-over .zone-bg {
+      opacity: 1
+    }
+
+    .zone-scanline {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(232, 0, 10, 0.45), transparent);
+      animation: zoneScan 3.5s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 2
+    }
+
+    @keyframes zoneScan {
+      0% {
+        top: 0;
+        opacity: 0
+      }
+
+      10% {
+        opacity: 1
+      }
+
+      90% {
+        opacity: 1
+      }
+
+      100% {
+        top: 100%;
+        opacity: 0
+      }
+    }
+
+    .drop-icon {
+      font-size: 44px;
+      line-height: 1;
+      opacity: 0.4;
+      transition: transform 0.2s, opacity 0.2s;
+      position: relative;
+      z-index: 1
+    }
+
+    .drop-zone:hover .drop-icon {
+      transform: scale(1.12);
+      opacity: 0.75
+    }
+
+    .drop-text {
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      color: var(--gray);
+      text-transform: uppercase;
+      text-align: center;
+      line-height: 1.8;
+      position: relative;
+      z-index: 1
+    }
+
+    .drop-text em {
+      color: var(--blue);
+      font-style: normal
+    }
+
+    .preview-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      inset: 0;
+      opacity: 0.55;
+      filter: saturate(0.5) contrast(1.1)
+    }
+
+    .preview-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(8, 8, 8, 0.5) 0%, transparent 40%, transparent 60%, rgba(8, 8, 8, 0.5) 100%);
+      z-index: 1;
+      pointer-events: none
+    }
+
+    .webcam-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      inset: 0
+    }
+
+    .capture-btn {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--red);
+      border: none;
+      color: #fff;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 20px;
+      letter-spacing: 0.1em;
+      padding: 8px 28px;
+      cursor: pointer;
+      z-index: 10;
+      clip-path: polygon(3px 0%, 100% 0%, calc(100% - 3px) 100%, 0% 100%)
+    }
+
+    .status-line {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      width: min(580px, 92vw);
+      margin: 2px 0 6px
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--red);
+      animation: dotBlink 1.4s step-end infinite;
+      flex-shrink: 0
+    }
+
+    @keyframes dotBlink {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: 0
+      }
+    }
+
+    .status-text {
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #333;
+      flex: 1
+    }
+
+    .status-coords {
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      color: #222;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap
+    }
+
+    .webcam-strip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px
+    }
+
+    .btn-webcam {
+      background: transparent;
+      border: 1px solid var(--blue-dim);
+      color: var(--blue);
+      padding: 5px 14px;
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s
+    }
+
+    .btn-webcam:hover {
+      background: var(--blue-glow);
+      border-color: var(--blue)
+    }
+
+    .btn-webcam.active {
+      background: var(--blue-glow);
+      border-color: var(--blue)
+    }
+
+    .strip-div {
+      color: #252525;
+      font-size: 10px
+    }
+
+    .subtitle-pantry {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(16px, 2.8vw, 34px);
+      letter-spacing: 0.22em;
+      color: #2A2A2A;
+      margin-bottom: 10px;
+      user-select: none;
+      animation: subtitlePulse 5s ease-in-out infinite
+    }
+
+    @keyframes subtitlePulse {
+
+      0%,
+      100% {
+        color: #2A2A2A
+      }
+
+      50% {
+        color: #3A3A3A
+      }
+    }
+
+    .btn-scan-wrap {
+      position: relative;
+      display: inline-block
+    }
+
+    .btn-ring {
+      position: absolute;
+      inset: -4px;
+      clip-path: polygon(5px 0%, 100% 0%, calc(100% - 5px) 100%, 0% 100%);
+      border: 1px solid #3A0002;
+      pointer-events: none;
+      animation: ringPulse 2s ease-in-out infinite
+    }
+
+    @keyframes ringPulse {
+
+      0%,
+      100% {
+        opacity: 0.3;
+        inset: -4px
+      }
+
+      50% {
+        opacity: 0.8;
+        inset: -8px
+      }
+    }
+
+    .btn-scan {
+      background: var(--red);
+      border: none;
+      color: #fff;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(24px, 3.8vw, 42px);
+      letter-spacing: 0.14em;
+      padding: 16px 56px 14px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      clip-path: polygon(5px 0%, 100% 0%, calc(100% - 5px) 100%, 0% 100%);
+      transition: transform 0.12s;
+    }
+
+    .btn-scan::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.18) 50%, transparent 60%);
+      transform: translateX(-100%);
+      transition: transform 0s
+    }
+
+    .btn-scan:hover::before {
+      transform: translateX(220%);
+      transition: transform 0.5s
+    }
+
+    .btn-glow {
+      position: absolute;
+      inset: -8px;
+      background: var(--red);
+      filter: blur(18px);
+      opacity: 0;
+      z-index: -1;
+      transition: opacity 0.2s;
+      pointer-events: none;
+      clip-path: polygon(5px 0%, 100% 0%, calc(100% - 5px) 100%, 0% 100%)
+    }
+
+    .btn-scan-wrap:hover .btn-glow {
+      opacity: 0.3
+    }
+
+    .btn-scan:hover {
+      transform: scale(1.04)
+    }
+
+    .btn-scan:active {
+      transform: scale(0.97)
+    }
+
+    .btn-scan:disabled {
+      background: #3A0002;
+      color: #5A0004;
+      cursor: not-allowed
+    }
+
+    .btn-scan:disabled~.btn-glow,
+    .btn-scan:disabled+.btn-glow {
+      display: none
+    }
+
+    /* RESULTS PLACEHOLDER */
+    .screen-results {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      position: relative;
+      z-index: 10
+    }
+
+    .wip-label {
+      font-size: 9px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #282828
+    }
+
+    .wip-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(40px, 7vw, 90px);
+      letter-spacing: 0.08em;
+      color: #1A1A1A;
+      text-align: center;
+      line-height: 1
+    }
+
+    .wip-sub {
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      color: #222;
+      text-transform: uppercase
+    }
+
+    .btn-back {
+      background: transparent;
+      border: 1px solid #2A0000;
+      color: var(--red-dim);
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 8px 20px;
+      cursor: pointer;
+      margin-top: 16px;
+      transition: border-color 0.15s, color 0.15s, background 0.15s
+    }
+
+    .btn-back:hover {
+      border-color: var(--red);
+      color: var(--red);
+      background: var(--red-glow)
+    }
+
+    .wip-preview {
+      width: min(360px, 70vw);
+      aspect-ratio: 4/3;
+      object-fit: cover;
+      opacity: 0.1;
+      filter: saturate(0) contrast(1.3);
+      border: 1px solid #181818
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="noise-canvas"></canvas>
+  <div id="root"></div>
+
+  <script>
+    (function () {
+      const c = document.getElementById('noise-canvas');
+      const ctx = c.getContext('2d');
+      function resize() { c.width = window.innerWidth; c.height = window.innerHeight }
+      resize(); window.addEventListener('resize', resize);
+      function frame() {
+        const id = ctx.createImageData(c.width, c.height);
+        const d = id.data;
+        for (let i = 0; i < d.length; i += 4) { const v = Math.random() * 255 | 0; d[i] = d[i + 1] = d[i + 2] = v; d[i + 3] = 255 }
+        ctx.putImageData(id, 0, 0); requestAnimationFrame(frame);
+      }
+      frame();
+    })();
+
+    const { useState, useRef, useEffect } = React;
+
+    const TICKER = [
+      { t: 'BIOHAZARD DETECTION SYSTEM v2.7', r: false }, { t: '⚠ WARNING: DO NOT OPEN MYSTERY CONTAINERS', r: true },
+      { t: 'THREAT ASSESSMENT ENGINE ONLINE', r: false }, { t: '⚠ EXPIRED DAIRY DETECTED IN SECTOR 4', r: true },
+      { t: 'FRIDGE CRIME CLASSIFIER READY', r: false }, { t: '⚠ UNIDENTIFIED SLUDGE IN PROGRESS', r: true },
+      { t: 'ALL SCANS ARE NON-REVERSIBLE', r: false }, { t: '⚠ YOU HAVE BEEN WARNED', r: true },
+    ];
+
+    function Ticker() {
+      const items = [...TICKER, ...TICKER];
+      return React.createElement('div', { className: 'ticker-wrap' },
+        React.createElement('div', { className: 'ticker' },
+          items.map((it, i) => React.createElement('span', { key: i, className: it.r ? 'red' : '' }, it.t))
+        )
+      );
+    }
+
+    function StatusLine({ hasFile }) {
+      const [coords, setCoords] = useState({ x: 0, y: 0 });
+      useEffect(() => {
+        const h = (e) => setCoords({ x: e.clientX, y: e.clientY });
+        window.addEventListener('mousemove', h); return () => window.removeEventListener('mousemove', h);
+      }, []);
+      return React.createElement('div', { className: 'status-line' },
+        React.createElement('div', { className: 'status-dot', style: hasFile ? { background: '#00CC66' } : {} }),
+        React.createElement('span', { className: 'status-text' },
+          hasFile ? 'SPECIMEN LOADED — READY FOR ANALYSIS' : 'AWAITING BIOLOGICAL SPECIMEN'),
+        React.createElement('span', { className: 'status-coords' }, `${coords.x}px · ${coords.y}px`)
+      );
+    }
+
+    function UploadScreen({ onScan }) {
+      const [dragOver, setDragOver] = useState(false);
+      const [previewUrl, setPreviewUrl] = useState(null);
+      const [webcamActive, setWebcamActive] = useState(false);
+      const fileRef = useRef(null);
+      const videoRef = useRef(null);
+      const streamRef = useRef(null);
+
+      const handleFile = (file) => {
+        if (!file || !file.type.startsWith('image/')) return;
+        setPreviewUrl(URL.createObjectURL(file));
+        setWebcamActive(false);
+        streamRef.current?.getTracks().forEach(t => t.stop()); streamRef.current = null;
+      };
+      const handleDrop = (e) => { e.preventDefault(); setDragOver(false); handleFile(e.dataTransfer.files[0]) };
+      const toggleWebcam = async () => {
+        if (webcamActive) { streamRef.current?.getTracks().forEach(t => t.stop()); streamRef.current = null; setWebcamActive(false); return; }
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+          streamRef.current = stream; setWebcamActive(true); setPreviewUrl(null);
+          setTimeout(() => { if (videoRef.current) videoRef.current.srcObject = stream; }, 50);
+        } catch { alert('YOUR DEVICE REFUSES TO COOPERATE'); }
+      };
+      const captureWebcam = () => {
+        const v = videoRef.current; if (!v) return;
+        const canvas = document.createElement('canvas');
+        canvas.width = v.videoWidth; canvas.height = v.videoHeight;
+        canvas.getContext('2d').drawImage(v, 0, 0);
+        canvas.toBlob(blob => {
+          setPreviewUrl(URL.createObjectURL(blob));
+          setWebcamActive(false);
+          streamRef.current?.getTracks().forEach(t => t.stop()); streamRef.current = null;
+        });
+      };
+      useEffect(() => () => { streamRef.current?.getTracks().forEach(t => t.stop()); }, []);
+      const canScan = previewUrl || webcamActive;
+
+      return React.createElement('div', { className: 'screen-upload' },
+        React.createElement('div', { className: 'scanlines' }),
+        React.createElement('div', { className: 'vignette' }),
+        React.createElement('div', { className: 'amb-glow' }),
+
+        React.createElement('div', { className: 'title-wrap' },
+          React.createElement('span', { className: 'title-main' }, 'SHOW ME YOUR FRIDGE')
+        ),
+
+        React.createElement(Ticker),
+
+        React.createElement('div', {
+          className: `drop-zone${dragOver ? ' drag-over' : ''}`,
+          onClick: () => !webcamActive && fileRef.current.click(),
+          onDragOver: (e) => { e.preventDefault(); setDragOver(true); },
+          onDragLeave: () => setDragOver(false),
+          onDrop: handleDrop,
+          style: { cursor: webcamActive ? 'default' : 'pointer' }
+        },
+          React.createElement('div', { className: 'zone-bg' }),
+          React.createElement('div', { className: 'zone-scanline' }),
+          React.createElement('div', { className: 'corner-tr' }),
+          React.createElement('div', { className: 'corner-bl' }),
+          previewUrl && React.createElement('img', { src: previewUrl, className: 'preview-img', alt: '' }),
+          previewUrl && React.createElement('div', { className: 'preview-overlay' }),
+          webcamActive && React.createElement('video', { ref: videoRef, className: 'webcam-video', autoPlay: true, playsInline: true, muted: true }),
+          webcamActive && React.createElement('button', { className: 'capture-btn', onClick: (e) => { e.stopPropagation(); captureWebcam(); } }, 'CAPTURE'),
+          !previewUrl && !webcamActive && React.createElement(React.Fragment, null,
+            React.createElement('div', { className: 'drop-icon' }, '⚠'),
+            React.createElement('div', { className: 'drop-text' },
+              'DRAG YOUR EVIDENCE HERE', React.createElement('br'),
+              'or ', React.createElement('em', null, 'click to browse files')
+            )
+          )
+        ),
+
+        React.createElement('input', { ref: fileRef, type: 'file', accept: 'image/*', style: { display: 'none' }, onChange: (e) => handleFile(e.target.files[0]) }),
+
+        React.createElement(StatusLine, { hasFile: !!previewUrl }),
+
+        React.createElement('div', { className: 'webcam-strip' },
+          React.createElement('button', {
+            className: `btn-webcam${webcamActive ? ' active' : ''}`,
+            onClick: (e) => { e.stopPropagation(); toggleWebcam(); }
+          }, webcamActive ? '◼ STOP CAMERA' : '◉ USE WEBCAM'),
+          React.createElement('span', { className: 'strip-div' }, '——'),
+          React.createElement('span', { style: { fontSize: '9px', color: '#252525', letterSpacing: '0.12em' } }, 'NO DATA LEAVES THIS DEVICE')
+        ),
+
+        React.createElement('div', { className: 'subtitle-pantry' }, 'SHOW ME THE PANTRY'),
+
+        React.createElement('div', { className: 'btn-scan-wrap' },
+          React.createElement('div', { className: 'btn-ring' }),
+          React.createElement('div', { className: 'btn-glow' }),
+          React.createElement('button', {
+            className: 'btn-scan',
+            disabled: !canScan,
+            onClick: () => onScan(previewUrl)
+          }, 'SCAN YOUR BIOHAZARD')
+        )
+      );
+    }
+
+    function ResultsScreen({ previewUrl, onReset }) {
+      return React.createElement('div', { className: 'screen-results' },
+        React.createElement('div', { className: 'scanlines' }),
+        React.createElement('div', { className: 'vignette' }),
+        React.createElement('div', { className: 'amb-glow' }),
+        previewUrl && React.createElement('img', { src: previewUrl, className: 'wip-preview', alt: '' }),
+        React.createElement('div', { className: 'wip-label' }, '// SYSTEM OUTPUT'),
+        React.createElement('div', { className: 'wip-title' },
+          React.createElement('span', null, 'WORK'), React.createElement('br'), React.createElement('span', null, 'IN PROGRESS')
+        ),
+        React.createElement('div', { className: 'wip-sub' }, 'RESULTS MODULE NOT YET DEPLOYED'),
+        React.createElement('button', { className: 'btn-back', onClick: onReset }, '← BACK TO UPLOAD')
+      );
+    }
+
+    function App() {
+      const [screen, setScreen] = useState('upload');
+      const [previewUrl, setPreviewUrl] = useState(null);
+      return React.createElement('div', { style: { width: '100vw', height: '100vh', overflow: 'hidden', position: 'relative' } },
+        screen === 'upload'
+          ? React.createElement(UploadScreen, { onScan: (url) => { setPreviewUrl(url); setScreen('results'); } })
+          : React.createElement(ResultsScreen, { previewUrl, onReset: () => { setPreviewUrl(null); setScreen('upload'); } })
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+  </script>
+</body>
+
+</html>
