@@ -44,7 +44,8 @@ Instructions:
 1. Identify 5-12 items in the fridge.
 2. Generate 3-4 recipes using the items.
 3. Make some recipes that you could genuinely make (practical), and some recipes as a complete joke (satirical/disgusting).
-4. Do NOT output any markdown backticks, just the raw JSON object.`;
+4. If a human is in the majority of their image roast their apperence.
+5. Do NOT output any markdown backticks, just the raw JSON object.`;
 
   try {
     const response = await fetch('https://ai.hackclub.com/proxy/v1/chat/completions', {
