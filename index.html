@@ -94,43 +94,7 @@
             display: none;
         }
 
-        .ticker-wrap {
-            overflow: hidden;
-            width: min(620px, 92vw);
-            margin-bottom: 6px;
-            border-top: 1px solid #1C1C1C;
-            border-bottom: 1px solid #1C1C1C;
-            padding: 4px 0
-        }
 
-        .ticker {
-            display: inline-flex;
-            gap: 0;
-            white-space: nowrap;
-            animation: tickerMove 22s linear infinite
-        }
-
-        @keyframes tickerMove {
-            from {
-                transform: translateX(0)
-            }
-
-            to {
-                transform: translateX(-50%)
-            }
-        }
-
-        .ticker span {
-            font-size: 9px;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            color: #2E2E2E;
-            padding: 0 28px
-        }
-
-        .ticker span.teal {
-            color: var(--primary-dim)
-        }
 
         .drop-zone {
             width: min(400px, 92vw);
@@ -806,21 +770,7 @@
 
         const { useState, useRef, useEffect } = React;
 
-        const TICKER = [
-            { t: 'BIOHAZARD DETECTION SYSTEM v2.7', r: false }, { t: '⚠ WARNING: DO NOT OPEN MYSTERY CONTAINERS', r: true },
-            { t: 'THREAT ASSESSMENT ENGINE ONLINE', r: false }, { t: '⚠ EXPIRED DAIRY DETECTED IN SECTOR 4', r: true },
-            { t: 'FRIDGE CRIME CLASSIFIER READY', r: false }, { t: '⚠ UNIDENTIFIED SLUDGE IN PROGRESS', r: true },
-            { t: 'ALL SCANS ARE NON-REVERSIBLE', r: false }, { t: '⚠ YOU HAVE BEEN WARNED', r: true },
-        ];
 
-        function Ticker() {
-            const items = [...TICKER, ...TICKER];
-            return React.createElement('div', { className: 'ticker-wrap' },
-                React.createElement('div', { className: 'ticker' },
-                    items.map((it, i) => React.createElement('span', { key: i, className: it.r ? 'teal' : '' }, it.t))
-                )
-            );
-        }
 
         function StatusLine({ hasFile }) {
             const [coords, setCoords] = useState({ x: 0, y: 0 });
@@ -897,7 +847,7 @@
                     React.createElement('span', { className: 'title-main' }, 'SHOW ME YOUR FRIDGE')
                 ),
 
-                React.createElement(Ticker),
+
 
                 React.createElement('div', {
                     className: `drop-zone${dragOver ? ' drag-over' : ''}`,
