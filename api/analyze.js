@@ -30,6 +30,10 @@ export default async function handler(req, res) {
         model: 'google/gemini-2.5-flash', // Using a vision-capable model
         messages: [
           {
+            role: 'system',
+            content: 'List off everything you see in the fridge. Provide a consistent list separated by newlines, with NO markdown formatting, asterisks, or dashes. Only output the plain text items.'
+          },
+          {
             role: 'user',
             content: [
               { type: 'text', text: textPrompt },
