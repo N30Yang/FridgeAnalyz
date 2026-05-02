@@ -818,6 +818,7 @@
         }
 
         .res-col-left {
+
             width: 340px;
             display: flex;
             flex-direction: column;
@@ -1100,6 +1101,19 @@
                 text-align: center;
                 gap: 6px;
             }
+
+            #root, body, html {
+                overflow-y: auto;
+                overflow-x: hidden;
+            }
+
+            .screen-upload {
+                height: auto;
+                min-height: 100vh;
+                justify-content: flex-start;
+                padding-top: 40px;
+                padding-bottom: 40px;
+            }
         }
     </style>
 </head>
@@ -1161,6 +1175,7 @@
             const [webcamActive, setWebcamActive] = useState(false);
             const [facingMode, setFacingMode] = useState('environment');
             const fileRef = useRef(null);
+            const cameraRef = useRef(null);
             const videoRef = useRef(null);
             const streamRef = useRef(null);
 
@@ -1243,14 +1258,19 @@
                 ),
 
                 React.createElement('input', { ref: fileRef, type: 'file', accept: 'image/*', style: { display: 'none' }, onChange: (e) => handleFile(e.target.files[0]) }),
+                React.createElement('input', { ref: cameraRef, type: 'file', accept: 'image/*', capture: 'environment', style: { display: 'none' }, onChange: (e) => handleFile(e.target.files[0]) }),
 
                 React.createElement(StatusLine, { hasFile: !!previewUrl }),
 
                 React.createElement('div', { className: 'webcam-strip' },
                     React.createElement('button', {
+                        className: 'btn-webcam',
+                        onClick: (e) => { e.stopPropagation(); cameraRef.current.click(); }
+                    }, '📸 NATIVE CAMERA'),
+                    React.createElement('button', {
                         className: `btn-webcam${webcamActive ? ' active' : ''}`,
                         onClick: (e) => { e.stopPropagation(); toggleWebcam(); }
-                    }, webcamActive ? '◼ STOP CAMERA' : '◉ USE WEBCAM'),
+                    }, webcamActive ? '◼ STOP WEBCAM' : '◉ WEB CAM'),
                     webcamActive && React.createElement('button', {
                         className: 'btn-webcam',
                         onClick: switchCamera
